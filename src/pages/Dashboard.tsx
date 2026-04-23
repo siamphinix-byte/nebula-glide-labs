@@ -193,7 +193,17 @@ export function Dashboard() {
                           <stop offset="100%" stopColor="var(--color-brand-secondary)" stopOpacity={0} />
                         </linearGradient>
                       </defs>
-                      <Area dataKey="v" stroke="var(--color-brand-secondary)" strokeWidth={2} fill="url(#hoursGradient)" />
+                      <Tooltip
+                        cursor={false}
+                        contentStyle={{
+                          backgroundColor: 'var(--color-brand-bg)',
+                          borderColor: 'rgba(255,255,255,0.12)',
+                          borderRadius: '10px',
+                          color: 'white',
+                          fontSize: '12px',
+                        }}
+                      />
+                      <Area type="monotone" dataKey="v" stroke="var(--color-brand-secondary)" strokeWidth={2} fill="url(#hoursGradient)" dot={false} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -203,6 +213,16 @@ export function Dashboard() {
                 <div className="relative z-10 mt-5 h-12 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={miniCostData}>
+                      <Tooltip
+                        cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                        contentStyle={{
+                          backgroundColor: 'var(--color-brand-bg)',
+                          borderColor: 'rgba(255,255,255,0.12)',
+                          borderRadius: '10px',
+                          color: 'white',
+                          fontSize: '12px',
+                        }}
+                      />
                       <Bar dataKey="v" fill="var(--color-brand-teal)" radius={[2, 2, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -290,7 +310,11 @@ export function Dashboard() {
                       onMouseLeave={() => setHoveredPie(null)}
                     >
                       {progressData.map((entry, index) => (
-                        <Cell key={entry.name} fill={entry.color} opacity={hoveredPie === null || hoveredPie === index ? 1 : 0.35} />
+                        <Cell
+                          key={entry.name}
+                          fill={entry.patterned ? 'url(#progressStripes)' : entry.color}
+                          opacity={hoveredPie === null || hoveredPie === index ? 1 : 0.35}
+                        />
                       ))}
                     </Pie>
                   </PieChart>
@@ -310,10 +334,14 @@ export function Dashboard() {
                     onMouseLeave={() => setHoveredPie(null)}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="h-3.5 w-3.5 rounded-full" style={{ background: item.color as string }} />
+                      {item.patterned ? (
+                        <span className="h-3.5 w-3.5 rounded-full border border-white/20 bg-[repeating-linear-gradient(45deg,rgba(122,60,245,0.95)_0px,rgba(122,60,245,0.95)_3px,rgba(122,60,245,0.25)_3px,rgba(122,60,245,0.25)_6px)]" />
+                      ) : (
+                        <span className="h-3.5 w-3.5 rounded-full" style={{ background: item.color }} />
+                      )}
                       <span className="text-[13px] font-bold text-white/85">{item.name}</span>
                     </div>
-                    <span className="font-mono text-[12px] font-bold text-white/55">{item.value}%</span>
+                    <span className="text-[12px] font-semibold text-white/55">{item.value}%</span>
                   </div>
                 ))}
               </div>
@@ -439,7 +467,7 @@ export function Dashboard() {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      <span className="font-mono text-[11px] text-white/45">{item.time}</span>
+                      <span className="text-[11px] font-medium text-white/45">{item.time}</span>
                       <button className="rounded border border-white/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 transition-all hover:border-white/20 hover:bg-white/10 hover:text-white">
                         Action
                       </button>
