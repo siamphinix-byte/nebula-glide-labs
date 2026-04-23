@@ -116,8 +116,7 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
               )}
             </div>
 
-            <NavLink to="/app/zoom-meetings" icon={() => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 transition-colors w-4 h-4"><path d="M15 10l5-5v14l-5-5"/><rect x="4" y="6" width="11" height="12" rx="2" ry="2"/></svg>} label="Zoom Meetings" active={isActive('/app/zoom-meetings')} isCollapsed={isCollapsed} />
-            <NavLink to="/app/google-meetings" icon={() => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 transition-colors w-4 h-4"><path d="M15 10l5-5v14l-5-5"/><rect x="4" y="6" width="11" height="12" rx="2" ry="2"/></svg>} label="Google Meetings" active={isActive('/app/google-meetings')} isCollapsed={isCollapsed} />
+            <NavLink to="/app/meetings" icon={() => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 transition-colors w-4 h-4"><path d="M15 10l5-5v14l-5-5"/><rect x="4" y="6" width="11" height="12" rx="2" ry="2"/></svg>} label="Meetings" active={isActive('/app/meetings') || isActive('/app/zoom-meetings') || isActive('/app/google-meetings')} isCollapsed={isCollapsed} />
             
             {/* Budget Menu */}
             <div>
