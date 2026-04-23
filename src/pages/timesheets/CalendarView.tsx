@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Reveal, StaggerReveal } from '../../components/GSAPWrapper';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Clock, Plus, X } from 'lucide-react';
-import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -78,19 +77,9 @@ export function CalendarView() {
   const allEntries = useMemo(() => Object.values(entriesByDate).flat(), [entriesByDate]);
   const totalHours = allEntries.reduce((sum, entry) => sum + entry.hours, 0);
   const billableHours = allEntries.filter((entry) => entry.billable).reduce((sum, entry) => sum + entry.hours, 0);
-  const weekdaySeries = useMemo(() => {
-    const base = days.map((day) => ({ day, hours: 0 }));
-    Object.entries(entriesByDate).forEach(([dateKey, entries]) => {
-      const idx = new Date(dateKey).getDay();
-      base[idx].hours += entries.reduce((sum, entry) => sum + entry.hours, 0);
-    });
-    return base;
-  }, [entriesByDate]);
-
-  const pieData = [
-    { name: 'Billable', value: billableHours, fill: 'var(--color-brand-teal)' },
-    { name: 'Non-Billable', value: Math.max(0, totalHours - billableHours), fill: 'var(--color-brand-primary)' },
-  ];
+  const nonBillableHours = Math.max(0, totalHours - billableHours);
+  const selectedEntries = selectedDate ? entriesByDate[selectedDate] || [] : [];
+  const recentEntries = allEntries.slice(-5).reverse();
 
   const handleOpenModal = (dateObj: Date) => {
     const key = toDateKey(dateObj);
@@ -198,38 +187,61 @@ export function CalendarView() {
       </Reveal>
 
       <Reveal delay={0.18}>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <section className="h-[220px] rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-4">
-            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/55">Weekly Hour Density</p>
-            <ResponsiveContainer width="100%" height="88%">
-              <BarChart data={weekdaySeries}>
-                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,.45)', fontSize: 11 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,.45)', fontSize: 11 }} />
-                <Tooltip
-                  cursor={{ fill: 'rgba(255,255,255,.04)' }}
-                  contentStyle={{ backgroundColor: 'var(--color-brand-bg)', borderColor: 'rgba(255,255,255,.15)', borderRadius: 10, color: 'white' }}
-                />
-                <Bar dataKey="hours" radius={[6, 6, 0, 0]} fill="var(--color-brand-primary)" />
-              </BarChart>
-            </ResponsiveContainer>
-          </section>
-          <section className="h-[220px] rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-4">
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-xs font-bold uppercase tracking-wider text-white/55">Billing Mix</p>
-              <p className="text-xs font-semibold text-white/45">{totalHours.toFixed(1)}h total</p>
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          <section className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-4 xl:col-span-2">
+            <div className="mb-4 flex items-center justify-between">
+              <p className="text-xs font-bold uppercase tracking-wider text-white/55">Selected Day Snapshot</p>
+              <p className="text-xs font-semibold text-white/45">{selectedDate ? new Date(selectedDate).toLocaleDateString('en-US') : 'No day selected'}</p>
             </div>
-            <ResponsiveContainer width="100%" height="88%">
-              <PieChart>
-                <Pie data={pieData} dataKey="value" innerRadius={45} outerRadius={68} paddingAngle={4} stroke="none">
-                  {pieData.map((slice) => (
-                    <Cell key={slice.name} fill={slice.fill} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ backgroundColor: 'var(--color-brand-bg)', borderColor: 'rgba(255,255,255,.15)', borderRadius: 10, color: 'white' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+
+            {selectedEntries.length ? (
+              <div className="space-y-3">
+                {selectedEntries.map((entry, idx) => (
+                  <article key={`${entry.project}-${idx}`} className="rounded-xl border border-white/10 bg-[var(--color-brand-bg)] p-3">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <p className="truncate text-sm font-bold text-white">{entry.project}</p>
+                      <span className="rounded-full border border-[var(--color-brand-primary)]/35 bg-[var(--color-brand-primary)]/10 px-2 py-1 text-[10px] font-bold text-[var(--color-brand-primary)]">
+                        {entry.hours}h
+                      </span>
+                    </div>
+                    <p className="text-xs text-white/60">{entry.task}</p>
+                    {entry.description && <p className="mt-2 text-xs text-white/45">{entry.description}</p>}
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-white/15 bg-[var(--color-brand-bg)]/50 px-4 py-8 text-center text-sm text-white/55">
+                No entries for this date yet. Click + on a day to add one.
+              </div>
+            )}
+          </section>
+
+          <section className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-4">
+            <p className="mb-3 text-xs font-bold uppercase tracking-wider text-white/55">Timesheet Summary</p>
+            <div className="space-y-2">
+              <article className="rounded-xl border border-white/10 bg-[var(--color-brand-bg)] px-3 py-2">
+                <p className="text-[11px] text-white/50">Total Hours</p>
+                <p className="text-lg font-black text-[var(--color-brand-primary)]">{totalHours.toFixed(1)}h</p>
+              </article>
+              <article className="rounded-xl border border-white/10 bg-[var(--color-brand-bg)] px-3 py-2">
+                <p className="text-[11px] text-white/50">Billable</p>
+                <p className="text-lg font-black text-[var(--color-brand-teal)]">{billableHours.toFixed(1)}h</p>
+              </article>
+              <article className="rounded-xl border border-white/10 bg-[var(--color-brand-bg)] px-3 py-2">
+                <p className="text-[11px] text-white/50">Non-Billable</p>
+                <p className="text-lg font-black text-white">{nonBillableHours.toFixed(1)}h</p>
+              </article>
+            </div>
+
+            <p className="mb-2 mt-4 text-xs font-bold uppercase tracking-wider text-white/55">Recent Entries</p>
+            <div className="space-y-2">
+              {recentEntries.map((entry, idx) => (
+                <div key={`${entry.date}-${idx}`} className="rounded-xl border border-white/10 bg-[var(--color-brand-bg)] px-3 py-2">
+                  <p className="truncate text-xs font-semibold text-white/80">{entry.project}</p>
+                  <p className="text-[11px] text-white/45">{entry.date} · {entry.hours}h</p>
+                </div>
+              ))}
+            </div>
           </section>
         </div>
       </Reveal>

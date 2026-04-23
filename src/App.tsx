@@ -51,7 +51,6 @@ import { ProjectReports } from './pages/ProjectReports';
 import { MediaLibrary } from './pages/MediaLibrary';
 import { Notes } from './pages/Notes';
 import { Invoices } from './pages/Invoices';
-import { AppCalendar } from './pages/AppCalendar';
 import { Clients } from './pages/Clients';
 import { ProjectBoard } from './pages/ProjectBoard';
 import { Invoice } from './pages/Invoice';
@@ -169,7 +168,7 @@ export default function App() {
         <Route path="/app/media" element={<DashboardLayout><MediaLibrary /></DashboardLayout>} />
         <Route path="/app/notes" element={<DashboardLayout><Notes /></DashboardLayout>} />
         <Route path="/app/invoice" element={<DashboardLayout><Invoices /></DashboardLayout>} />
-        <Route path="/app/calendar" element={<DashboardLayout><AppCalendar /></DashboardLayout>} />
+        <Route path="/app/calendar" element={<DashboardLayout><CalendarView /></DashboardLayout>} />
 
         <Route path="/app/clients" element={<DashboardLayout><Clients /></DashboardLayout>} />
         <Route path="/app/project-board" element={<DashboardLayout><ProjectBoard /></DashboardLayout>} />
