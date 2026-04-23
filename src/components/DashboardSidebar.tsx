@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FolderOpen, ArrowRightLeft, MessageSquare, Headphones, Settings, HelpCircle, LogOut, Smartphone, CheckSquare, Bug, ChevronDown, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { LayoutDashboard, FolderOpen, ArrowRightLeft, MessageSquare, Headphones, Settings, HelpCircle, LogOut, Smartphone, CheckSquare, Bug, ChevronDown, PanelLeftClose, PanelLeftOpen, CalendarDays } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: boolean; onToggle?: () => void }) {
@@ -109,7 +109,6 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
                   <NavLink to="/app/timesheets/daily" label="Daily View" active={isActive('/app/timesheets/daily')} isSub isCollapsed={isCollapsed} />
                   <NavLink to="/app/timesheets/weekly" label="Weekly View" active={isActive('/app/timesheets/weekly')} isSub isCollapsed={isCollapsed} />
                   <NavLink to="/app/timesheets/monthly" label="Monthly View" active={isActive('/app/timesheets/monthly')} isSub isCollapsed={isCollapsed} />
-                  <NavLink to="/app/timesheets/calendar" label="Calendar View" active={isActive('/app/timesheets/calendar')} isSub isCollapsed={isCollapsed} />
                   <NavLink to="/app/timesheets/approvals" label="Approvals" active={isActive('/app/timesheets/approvals')} isSub isCollapsed={isCollapsed} />
                   <NavLink to="/app/timesheets/reports" label="Reports" active={isActive('/app/timesheets/reports')} isSub isCollapsed={isCollapsed} />
                 </div>
@@ -145,7 +144,7 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
             <NavLink to="/app/project-reports" icon={() => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 transition-colors w-4 h-4"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>} label="Project Reports" active={isActive('/app/project-reports')} isCollapsed={isCollapsed} />
             <NavLink to="/app/invoice" icon={() => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 transition-colors w-4 h-4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>} label="Invoices" active={isActive('/app/invoice')} isCollapsed={isCollapsed} />
             <NavLink to="/app/notes" icon={() => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 transition-colors w-4 h-4"><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M16 2v20"/></svg>} label="Notes" active={isActive('/app/notes')} isCollapsed={isCollapsed} />
-            <NavLink to="/app/calendar" icon={() => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 transition-colors w-4 h-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>} label="Calendar" active={isActive('/app/calendar')} isCollapsed={isCollapsed} />
+            <NavLink to="/app/calendar" icon={CalendarDays} label="Calendar" active={isActive('/app/calendar') || isActive('/app/timesheets/calendar')} isCollapsed={isCollapsed} />
             <NavLink to="/app/media" icon={() => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 transition-colors w-4 h-4"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>} label="Media Library" active={isActive('/app/media')} isCollapsed={isCollapsed} />
           </nav>
         </div>
