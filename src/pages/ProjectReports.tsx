@@ -1,163 +1,466 @@
-import React from 'react';
-import { Reveal } from '../components/GSAPWrapper';
-import { Search, Filter, Eye, Edit } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { Reveal, StaggerReveal } from '../components/GSAPWrapper';
+import { Search, Filter, Eye, Edit, BarChart3, PieChart as PieChartIcon, ChevronDown, X } from 'lucide-react';
+import {
+  ResponsiveContainer,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Pie,
+  PieChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+  Cell,
+} from 'recharts';
 
-const projects = [
-  { id: 1, name: 'Security Audit', desc: 'Project description for Security Audit', start: '11/12/2025', due: '1/21/2026', members: ['E','D','L'], progress: 58, status: 'Planning', color: '#5b8cff' },
-  { id: 2, name: 'Performance Suite', desc: 'Project description for Performance Suite', start: '11/15/2025', due: '2/24/2026', members: ['S','D','G'], progress: 100, status: 'Completed', color: '#d4bbff' },
-  { id: 3, name: 'Admin Dashboard', desc: 'Project description for Admin Dashboard', start: '9/21/2025', due: '1/14/2026', members: ['S','D','L'], progress: 90, status: 'On Hold', color: '#ebd356' },
-  { id: 4, name: 'Payment Integration', desc: 'Project description for Payment Integration', start: '10/27/2025', due: '1/29/2026', members: ['S','R','D'], progress: 65, status: 'Planning', color: '#5b8cff' },
-  { id: 5, name: 'AI Chatbot', desc: 'Project description for AI Chatbot', start: '11/3/2025', due: '2/21/2026', members: ['M','K','D'], progress: 73, status: 'On Hold', color: '#ebd356' },
-  { id: 6, name: 'Inventory System', desc: 'Project description for Inventory System', start: '10/27/2025', due: '1/10/2026', members: ['E','D','J'], progress: 69, status: 'On Hold', color: '#ebd356' },
-  { id: 7, name: 'CRM Enhancement', desc: 'Project description for CRM Enhancement', start: '9/26/2025', due: '3/7/2026', members: ['S','E','J'], progress: 66, status: 'Planning', color: '#5b8cff' },
-  { id: 8, name: 'Data Warehouse', desc: 'Project description for Data Warehouse', start: '11/1/2025', due: '1/21/2026', members: ['S','E','D'], progress: 55, status: 'Planning', color: '#5b8cff' },
-  { id: 9, name: 'Mobile Banking App', desc: 'Project description for Mobile Banking App', start: '9/25/2025', due: '1/23/2026', members: ['S','J','R'], progress: 100, status: 'Completed', color: '#d4bbff' },
-  { id: 10, name: 'Customer Portal', desc: 'Project description for Customer Portal', start: '10/9/2025', due: '1/14/2026', members: ['M','E','J'], progress: 72, status: 'Active', color: '#bbf600' },
+type ProjectStatus = 'Planning' | 'Active' | 'Completed' | 'On Hold';
+
+type Project = {
+  id: number;
+  name: string;
+  desc: string;
+  start: string;
+  due: string;
+  members: string[];
+  extraMembers: number;
+  progress: number;
+  status: ProjectStatus;
+};
+
+const seedProjects: Project[] = [
+  { id: 1, name: 'Security Audit', desc: 'Threat analysis and endpoint hardening plan.', start: '2025-11-12', due: '2026-01-21', members: ['E', 'D', 'L'], extraMembers: 8, progress: 58, status: 'Planning' },
+  { id: 2, name: 'Performance Suite', desc: 'Core monitoring, tracing and cache optimization.', start: '2025-11-15', due: '2026-02-24', members: ['S', 'D', 'G'], extraMembers: 2, progress: 100, status: 'Completed' },
+  { id: 3, name: 'Admin Dashboard', desc: 'Role-aware KPI panels and workflow widgets.', start: '2025-09-21', due: '2026-01-14', members: ['S', 'D', 'L'], extraMembers: 4, progress: 90, status: 'On Hold' },
+  { id: 4, name: 'Payment Integration', desc: 'Invoicing sync, payout routing, and webhook tests.', start: '2025-10-27', due: '2026-01-29', members: ['S', 'R', 'D'], extraMembers: 3, progress: 65, status: 'Planning' },
+  { id: 5, name: 'AI Chatbot', desc: 'Support flows with escalation and sentiment tagging.', start: '2025-11-03', due: '2026-02-21', members: ['M', 'K', 'D'], extraMembers: 6, progress: 73, status: 'On Hold' },
+  { id: 6, name: 'Inventory System', desc: 'Batch-level stock lifecycle and reorder automation.', start: '2025-10-27', due: '2026-01-10', members: ['E', 'D', 'J'], extraMembers: 6, progress: 69, status: 'On Hold' },
+  { id: 7, name: 'CRM Enhancement', desc: 'Lead scoring and retention playbook rollout.', start: '2025-09-26', due: '2026-03-07', members: ['S', 'E', 'J'], extraMembers: 9, progress: 66, status: 'Planning' },
+  { id: 8, name: 'Data Warehouse', desc: 'Historical pipeline and cost-tuned query layers.', start: '2025-11-01', due: '2026-01-21', members: ['S', 'E', 'D'], extraMembers: 10, progress: 55, status: 'Planning' },
+  { id: 9, name: 'Mobile Banking App', desc: 'Identity checks, transfer security and UX polish.', start: '2025-09-25', due: '2026-01-23', members: ['S', 'J', 'R'], extraMembers: 7, progress: 100, status: 'Completed' },
+  { id: 10, name: 'Customer Portal', desc: 'Self-service tickets and account data sync.', start: '2025-10-09', due: '2026-01-14', members: ['M', 'E', 'J'], extraMembers: 7, progress: 72, status: 'Active' },
+  { id: 11, name: 'Internal Wiki', desc: 'Documentation migration and indexed search.', start: '2025-10-18', due: '2026-02-10', members: ['I', 'D', 'A'], extraMembers: 3, progress: 48, status: 'Planning' },
+  { id: 12, name: 'Billing QA', desc: 'Regression matrix for invoice and tax behavior.', start: '2025-11-22', due: '2026-01-30', members: ['L', 'A', 'E'], extraMembers: 4, progress: 62, status: 'Active' },
 ];
 
+const statusCycle: Record<ProjectStatus, ProjectStatus> = {
+  Planning: 'Active',
+  Active: 'On Hold',
+  'On Hold': 'Completed',
+  Completed: 'Planning',
+};
+
+const statusTone: Record<ProjectStatus, string> = {
+  Planning: 'text-brand-primary border-brand-primary/30 bg-brand-primary/10',
+  Active: 'text-brand-teal border-brand-teal/30 bg-brand-teal/10',
+  Completed: 'text-brand-secondary border-brand-secondary/30 bg-brand-secondary/10',
+  'On Hold': 'text-white border-white/30 bg-white/10',
+};
+
+const initialsTone = ['bg-brand-primary', 'bg-brand-secondary', 'bg-brand-teal'];
+
 export function ProjectReports() {
+  const [projects, setProjects] = useState(seedProjects);
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'All' | ProjectStatus>('All');
+  const [perPage, setPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  const filteredProjects = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    return projects.filter((project) => {
+      const matchesQuery =
+        !normalized ||
+        project.name.toLowerCase().includes(normalized) ||
+        project.desc.toLowerCase().includes(normalized);
+      const matchesStatus = statusFilter === 'All' || project.status === statusFilter;
+      return matchesQuery && matchesStatus;
+    });
+  }, [projects, query, statusFilter]);
+
+  const pageCount = Math.max(1, Math.ceil(filteredProjects.length / perPage));
+  const safePage = Math.min(currentPage, pageCount);
+  const paginatedProjects = useMemo(() => {
+    const startIndex = (safePage - 1) * perPage;
+    return filteredProjects.slice(startIndex, startIndex + perPage);
+  }, [filteredProjects, safePage, perPage]);
+
+  const reportStats = useMemo(() => {
+    const totalProjects = filteredProjects.length;
+    const activeCount = filteredProjects.filter((project) => project.status === 'Active').length;
+    const completedCount = filteredProjects.filter((project) => project.status === 'Completed').length;
+    const onHoldCount = filteredProjects.filter((project) => project.status === 'On Hold').length;
+    const highPriorityCount = filteredProjects.filter(
+      (project) => project.progress < 70 && project.status !== 'Completed',
+    ).length;
+
+    return {
+      totalProjects,
+      activeCount,
+      completedCount,
+      onHoldCount,
+      highPriorityCount,
+    };
+  }, [filteredProjects]);
+
+  const statusChartData = useMemo(() => {
+    const statuses: ProjectStatus[] = ['Planning', 'Active', 'Completed', 'On Hold'];
+    return statuses.map((status) => ({
+      name: status,
+      value: filteredProjects.filter((project) => project.status === status).length,
+    }));
+  }, [filteredProjects]);
+
+  const progressChartData = useMemo(() => {
+    return [...filteredProjects]
+      .sort((a, b) => b.progress - a.progress)
+      .slice(0, 6)
+      .map((project) => ({
+        name: project.name.length > 12 ? `${project.name.slice(0, 12)}…` : project.name,
+        progress: project.progress,
+      }));
+  }, [filteredProjects]);
+
+  const updateStatus = (id: number) => {
+    setProjects((prev) => prev.map((project) => (project.id === id ? { ...project, status: statusCycle[project.status] } : project)));
+  };
+
+  const exportCSV = () => {
+    if (!filteredProjects.length) return;
+
+    const rows = [
+      ['ID', 'Project', 'Description', 'Start Date', 'Due Date', 'Members', 'Progress', 'Status'],
+      ...filteredProjects.map((project) => [
+        project.id,
+        project.name,
+        project.desc,
+        project.start,
+        project.due,
+        project.members.join('/'),
+        project.progress,
+        project.status,
+      ]),
+    ];
+
+    const blob = new Blob([rows.map((row) => row.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'project-reports.csv';
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const formatDate = (date: string) => new Date(date).toLocaleDateString('en-US');
+
   return (
-    <div className="max-w-[1400px] mx-auto space-y-6 pb-24 h-full">
+    <div className="mx-auto h-full max-w-[1400px] space-y-6 pb-24">
       <Reveal direction="down">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <h1 className="text-3xl font-bold tracking-tight text-white">Project Reports</h1>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <h1 className="text-3xl font-black tracking-tight text-white">Project Reports</h1>
+          <button
+            onClick={exportCSV}
+            className="rounded-xl border border-brand-primary/30 bg-brand-primary/10 px-4 py-2 text-xs font-bold uppercase tracking-wide text-brand-primary transition-colors hover:bg-brand-primary/20"
+          >
+            Export CSV
+          </button>
         </div>
       </Reveal>
 
       <Reveal delay={0.1}>
-         <div className="grid grid-cols-2 lg:grid-cols-5 border-b border-white/5 pb-6 gap-6 sm:gap-0 divide-y sm:divide-y-0 sm:divide-x divide-white/5 bg-[#1c1b1b] rounded-2xl border shadow-2xl overflow-hidden p-2">
-            <div className="flex flex-col justify-center items-center text-center p-4">
-               <span className="text-3xl font-black text-[#5b8cff] tracking-tight mb-2">12</span>
-               <span className="text-[13px] font-bold text-white/50">Total Projects</span>
+        <section className="overflow-hidden rounded-2xl border border-white/10 bg-brand-surface shadow-2xl">
+          <div className="grid grid-cols-2 gap-y-4 divide-y divide-white/5 p-2 sm:grid-cols-3 sm:divide-y-0 lg:grid-cols-5 lg:divide-x">
+            <article className="p-4 text-center">
+              <p className="mb-1 text-3xl font-black text-brand-primary">{reportStats.totalProjects}</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-white/55">Total Projects</p>
+            </article>
+            <article className="p-4 text-center">
+              <p className="mb-1 text-3xl font-black text-brand-teal">{reportStats.activeCount}</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-white/55">Active</p>
+            </article>
+            <article className="p-4 text-center">
+              <p className="mb-1 text-3xl font-black text-brand-secondary">{reportStats.completedCount}</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-white/55">Completed</p>
+            </article>
+            <article className="p-4 text-center">
+              <p className="mb-1 text-3xl font-black text-white">{reportStats.onHoldCount}</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-white/55">On Hold</p>
+            </article>
+            <article className="p-4 text-center">
+              <p className="mb-1 text-3xl font-black text-brand-primary">{reportStats.highPriorityCount}</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-white/55">High Priority</p>
+            </article>
+          </div>
+        </section>
+      </Reveal>
+
+      <Reveal delay={0.15}>
+        <section className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+          <article className="h-[260px] rounded-2xl border border-white/10 bg-brand-surface p-4 xl:col-span-2">
+            <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-white/55">
+              <BarChart3 className="h-4 w-4 text-brand-primary" /> Top Project Progress
             </div>
-            <div className="flex flex-col justify-center items-center text-center p-4">
-               <span className="text-3xl font-black text-[#bbf600] tracking-tight mb-2">1</span>
-               <span className="text-[13px] font-bold text-white/50">Active</span>
+            <ResponsiveContainer width="100%" height="88%">
+              <BarChart data={progressChartData}>
+                <CartesianGrid stroke="rgba(255,255,255,.06)" vertical={false} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,.55)', fontSize: 11 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,.55)', fontSize: 11 }} />
+                <Tooltip
+                  cursor={{ fill: 'rgba(255,255,255,.04)' }}
+                  contentStyle={{ backgroundColor: 'var(--color-brand-surface)', borderColor: 'rgba(255,255,255,.2)', borderRadius: 10, color: 'white' }}
+                />
+                <Bar dataKey="progress" radius={[8, 8, 0, 0]} fill="var(--color-brand-primary)" />
+              </BarChart>
+            </ResponsiveContainer>
+          </article>
+
+          <article className="h-[260px] rounded-2xl border border-white/10 bg-brand-surface p-4">
+            <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-white/55">
+              <PieChartIcon className="h-4 w-4 text-brand-secondary" /> Status Split
             </div>
-            <div className="flex flex-col justify-center items-center text-center p-4">
-               <span className="text-3xl font-black text-[#5b8cff] tracking-tight mb-2">2</span>
-               <span className="text-[13px] font-bold text-white/50">Completed</span>
-            </div>
-            <div className="flex flex-col justify-center items-center text-center p-4">
-               <span className="text-3xl font-black text-[#ebd356] tracking-tight mb-2">3</span>
-               <span className="text-[13px] font-bold text-white/50">On Hold</span>
-            </div>
-            <div className="flex flex-col justify-center items-center text-center p-4">
-               <span className="text-3xl font-black text-[#f1734f] tracking-tight mb-2">6</span>
-               <span className="text-[13px] font-bold text-white/50">High Priority</span>
-            </div>
-         </div>
+            <ResponsiveContainer width="100%" height="88%">
+              <PieChart>
+                <Pie data={statusChartData} dataKey="value" innerRadius={48} outerRadius={72} stroke="none" paddingAngle={4}>
+                  {statusChartData.map((entry) => (
+                    <Cell
+                      key={entry.name}
+                      fill={
+                        entry.name === 'Active'
+                          ? 'var(--color-brand-teal)'
+                          : entry.name === 'Completed'
+                            ? 'var(--color-brand-secondary)'
+                            : entry.name === 'Planning'
+                              ? 'var(--color-brand-primary)'
+                              : 'rgba(255,255,255,0.45)'
+                      }
+                    />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{ backgroundColor: 'var(--color-brand-surface)', borderColor: 'rgba(255,255,255,.2)', borderRadius: 10, color: 'white' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </article>
+        </section>
       </Reveal>
 
       <Reveal delay={0.2}>
-        <div className="bg-[#1c1b1b] rounded-2xl border border-white/5 shadow-2xl overflow-hidden mt-6">
-           <div className="p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/5">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto">
-                 <div className="relative w-full sm:w-auto">
-                   <Search className="w-4 h-4 absolute left-4 top-1/2 -mt-2 text-white/40" />
-                   <input type="text" placeholder="Search projects..." className="pl-11 pr-4 py-2 w-full sm:w-[280px] bg-[#131313] border border-white/10 rounded-xl text-[14px] focus:outline-none focus:border-[#bbf600] text-white transition-colors" />
-                 </div>
-                 <button className="bg-[#bbf600] text-[#131313] px-5 py-2 w-full sm:w-auto justify-center rounded-xl text-[13px] font-bold flex items-center gap-2 hover:bg-[#bbf600]/90 transition-all shadow-[0_0_15px_rgba(187, 246, 0,0.2)]">
-                   <Search className="w-4 h-4"/> Search
-                 </button>
-                 <button className="bg-[#131313] border border-white/10 text-white/80 px-4 py-2 w-full sm:w-auto justify-center rounded-xl text-[13px] font-bold flex items-center gap-2 hover:bg-white/5 transition-all">
-                   <Filter className="w-4 h-4"/> Filters
-                 </button>
+        <section className="overflow-hidden rounded-2xl border border-white/10 bg-brand-surface shadow-2xl">
+          <div className="flex flex-col justify-between gap-4 border-b border-white/10 p-4 lg:flex-row lg:items-center">
+            <div className="flex w-full flex-col gap-3 sm:flex-row">
+              <div className="relative w-full sm:max-w-[320px]">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/45" />
+                <input
+                  value={query}
+                  onChange={(event) => {
+                    setQuery(event.target.value);
+                    setCurrentPage(1);
+                  }}
+                  type="text"
+                  placeholder="Search projects..."
+                  className="w-full rounded-xl border border-white/15 bg-brand-bg px-9 py-2 text-sm text-white outline-none transition-colors focus:border-brand-primary"
+                />
               </div>
-              <div className="flex items-center gap-2 justify-end">
-                 <span className="text-xs text-white/40 font-medium">Per Page:</span>
-                 <div className="relative">
-                   <select className="bg-[#131313] border border-white/10 rounded-xl pl-4 pr-8 py-1.5 text-sm font-medium text-white focus:outline-none focus:border-[#bbf600] appearance-none cursor-pointer">
-                     <option>10</option>
-                   </select>
-                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white/50">
-                      <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-                   </div>
-                 </div>
-              </div>
-           </div>
 
-           <div className="overflow-x-auto">
-             <table className="w-full text-left border-collapse">
-               <thead>
-                 <tr className="border-b border-white/5 text-[11px] uppercase font-bold text-white/40 tracking-wider">
-                   <th className="px-6 py-4 w-12 text-center">#</th>
-                   <th className="px-6 py-4 min-w-[250px]">Project</th>
-                   <th className="px-6 py-4">Start Date</th>
-                   <th className="px-6 py-4">Due Date</th>
-                   <th className="px-6 py-4">Members</th>
-                   <th className="px-6 py-4">Progress</th>
-                   <th className="px-6 py-4">Status</th>
-                   <th className="px-6 py-4 text-right">Actions</th>
-                 </tr>
-               </thead>
-               <tbody className="text-[13px]">
-                 {projects.map((row, i) => (
-                   <React.Fragment key={row.id}>
-                     <Reveal delay={0.05 * i}>
-                       <tr className="border-b border-white/5 hover:bg-white/5 transition-colors group">
-                         <td className="px-6 py-4 text-center font-bold text-white/80">{row.id}</td>
-                         <td className="px-6 py-4">
-                            <div className="font-bold text-white tracking-tight">{row.name}</div>
-                            <div className="text-[11px] text-white/40 mt-1">{row.desc}</div>
-                         </td>
-                         <td className="px-6 py-4 font-mono text-white/60">{row.start}</td>
-                         <td className="px-6 py-4 font-mono text-white/60">{row.due}</td>
-                         <td className="px-6 py-4">
-                            <div className="flex -space-x-2">
-                               {row.members.map((m, idx) => (
-                                 <div key={idx} className={`w-6 h-6 rounded-full border border-[#131313] flex items-center justify-center font-bold text-[9px] text-[#131313] z-${10-idx}`} style={{ backgroundColor: ['#5b8cff', '#bbf600', '#ebd356'][idx % 3] }}>
-                                   {m}
-                                 </div>
-                               ))}
-                               <div className="w-6 h-6 rounded-full border border-white/10 bg-[#131313] flex items-center justify-center font-medium text-[9px] text-white/50 z-0">
-                                 +{row.id + 2}
-                               </div>
-                            </div>
-                         </td>
-                         <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                               <div className="w-full h-1.5 bg-[#131313] rounded-full overflow-hidden border border-white/5 w-16">
-                                 <div className="h-full bg-[#5b8cff] rounded-full" style={{ width: `${row.progress}%` }}></div>
-                               </div>
-                               <span className="text-[11px] font-bold text-white/60">{row.progress}%</span>
-                            </div>
-                         </td>
-                         <td className="px-6 py-4">
-                            <span className="px-2.5 py-1 text-[10px] uppercase font-bold tracking-wider rounded border" style={{ color: row.color, backgroundColor: `${row.color}15`, borderColor: `${row.color}25` }}>
-                              {row.status}
-                            </span>
-                         </td>
-                         <td className="px-6 py-4">
-                            <div className="flex justify-end gap-2">
-                               <button className="w-7 h-7 rounded bg-[#5b8cff]/10 text-[#5b8cff] border border-[#5b8cff]/20 flex items-center justify-center hover:bg-[#5b8cff]/20 transition-colors">
-                                 <Eye className="w-3.5 h-3.5" />
-                               </button>
-                               <button className="w-7 h-7 rounded bg-[#ebd356]/10 text-[#ebd356] border border-[#ebd356]/20 flex items-center justify-center hover:bg-[#ebd356]/20 transition-colors">
-                                 <Edit className="w-3.5 h-3.5" />
-                               </button>
-                            </div>
-                         </td>
-                       </tr>
-                     </Reveal>
-                   </React.Fragment>
-                 ))}
-               </tbody>
-             </table>
-           </div>
+              <label className="relative flex w-full items-center sm:w-[170px]">
+                <Filter className="pointer-events-none absolute left-3 h-4 w-4 text-white/45" />
+                <select
+                  value={statusFilter}
+                  onChange={(event) => {
+                    setStatusFilter(event.target.value as 'All' | ProjectStatus);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full appearance-none rounded-xl border border-white/15 bg-brand-bg px-9 py-2 text-sm text-white outline-none transition-colors focus:border-brand-primary"
+                >
+                  <option value="All">All Status</option>
+                  <option value="Planning">Planning</option>
+                  <option value="Active">Active</option>
+                  <option value="Completed">Completed</option>
+                  <option value="On Hold">On Hold</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 h-4 w-4 text-white/45" />
+              </label>
+            </div>
 
-           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-[#131313] border-t border-white/5 text-[13px] text-white/50">
-             <span className="font-medium">Showing 1 to 10 of 12 projects</span>
-             <div className="flex gap-2">
-               <button className="px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 transition-colors font-medium">Previous</button>
-               <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#bbf600] text-[#131313] font-bold shadow-md">1</button>
-               <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 border border-white/10 text-white/60 font-bold transition-colors">2</button>
-               <button className="px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 transition-colors font-medium">Next</button>
-             </div>
-           </div>
+            <div className="flex items-center justify-end gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wide text-white/45">Per page</span>
+              <select
+                value={perPage}
+                onChange={(event) => {
+                  setPerPage(Number(event.target.value));
+                  setCurrentPage(1);
+                }}
+                className="rounded-xl border border-white/15 bg-brand-bg px-3 py-1.5 text-sm text-white outline-none transition-colors focus:border-brand-primary"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={12}>12</option>
+              </select>
+            </div>
+          </div>
 
-        </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[940px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-white/45">
+                  <th className="px-4 py-3 text-center">#</th>
+                  <th className="px-4 py-3">Project</th>
+                  <th className="px-4 py-3">Start Date</th>
+                  <th className="px-4 py-3">Due Date</th>
+                  <th className="px-4 py-3">Members</th>
+                  <th className="px-4 py-3">Progress</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+
+              <StaggerReveal className="contents">
+                <tbody>
+                  {paginatedProjects.map((project) => (
+                    <tr key={project.id} className="border-b border-white/5 transition-colors hover:bg-white/5">
+                      <td className="px-4 py-4 text-center font-bold text-white/85">{project.id}</td>
+                      <td className="px-4 py-4">
+                        <p className="font-bold tracking-tight text-white">{project.name}</p>
+                        <p className="mt-1 text-xs text-white/50">{project.desc}</p>
+                      </td>
+                      <td className="px-4 py-4 font-mono text-white/70">{formatDate(project.start)}</td>
+                      <td className="px-4 py-4 font-mono text-white/70">{formatDate(project.due)}</td>
+                      <td className="px-4 py-4">
+                        <div className="flex -space-x-2">
+                          {project.members.map((member, index) => (
+                            <div
+                              key={`${project.id}-${member}`}
+                              className={`flex h-7 w-7 items-center justify-center rounded-full border border-brand-bg text-[10px] font-black text-brand-bg ${initialsTone[index % initialsTone.length]}`}
+                            >
+                              {member}
+                            </div>
+                          ))}
+                          <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-brand-bg text-[10px] font-bold text-white/65">
+                            +{project.extraMembers}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-20 overflow-hidden rounded-full bg-white/10">
+                            <div className="h-full rounded-full bg-brand-primary" style={{ width: `${project.progress}%` }} />
+                          </div>
+                          <span className="text-xs font-bold text-white/70">{project.progress}%</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${statusTone[project.status]}`}>
+                          {project.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => setSelectedProject(project)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-brand-primary/30 bg-brand-primary/10 text-brand-primary transition-colors hover:bg-brand-primary/20"
+                            aria-label={`View ${project.name}`}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => updateStatus(project.id)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-brand-secondary/30 bg-brand-secondary/10 text-brand-secondary transition-colors hover:bg-brand-secondary/20"
+                            aria-label={`Change status for ${project.name}`}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </StaggerReveal>
+            </table>
+          </div>
+
+          <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 bg-brand-bg/40 p-4 text-sm text-white/55 sm:flex-row">
+            <p>
+              Showing {(safePage - 1) * perPage + 1} to {Math.min(safePage * perPage, filteredProjects.length)} of {filteredProjects.length} projects
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={safePage === 1}
+                className="rounded-lg border border-white/15 px-3 py-1.5 font-semibold text-white/80 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Previous
+              </button>
+              {Array.from({ length: pageCount }).map((_, index) => {
+                const page = index + 1;
+                const isActive = page === safePage;
+                return (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`h-8 w-8 rounded-lg border text-sm font-bold transition-colors ${
+                      isActive
+                        ? 'border-brand-primary bg-brand-primary text-brand-bg'
+                        : 'border-white/15 bg-transparent text-white/70 hover:bg-white/10'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => setCurrentPage((prev) => Math.min(pageCount, prev + 1))}
+                disabled={safePage === pageCount}
+                className="rounded-lg border border-white/15 px-3 py-1.5 font-semibold text-white/80 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </section>
       </Reveal>
+
+      {selectedProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <Reveal direction="up" className="w-full max-w-xl">
+            <div className="rounded-2xl border border-white/15 bg-brand-surface p-6 shadow-2xl">
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-black text-white">{selectedProject.name}</h2>
+                  <p className="mt-1 text-sm text-white/60">{selectedProject.desc}</p>
+                </div>
+                <button
+                  onClick={() => setSelectedProject(null)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-brand-bg text-white/70 transition-colors hover:bg-white/10"
+                  aria-label="Close details"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                <article className="rounded-xl border border-white/10 bg-brand-bg p-3">
+                  <p className="text-xs uppercase tracking-wide text-white/45">Start Date</p>
+                  <p className="mt-1 font-bold text-white">{formatDate(selectedProject.start)}</p>
+                </article>
+                <article className="rounded-xl border border-white/10 bg-brand-bg p-3">
+                  <p className="text-xs uppercase tracking-wide text-white/45">Due Date</p>
+                  <p className="mt-1 font-bold text-white">{formatDate(selectedProject.due)}</p>
+                </article>
+                <article className="rounded-xl border border-white/10 bg-brand-bg p-3">
+                  <p className="text-xs uppercase tracking-wide text-white/45">Progress</p>
+                  <p className="mt-1 font-bold text-brand-primary">{selectedProject.progress}%</p>
+                </article>
+                <article className="rounded-xl border border-white/10 bg-brand-bg p-3">
+                  <p className="text-xs uppercase tracking-wide text-white/45">Status</p>
+                  <p className="mt-1 font-bold text-brand-secondary">{selectedProject.status}</p>
+                </article>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      )}
     </div>
   );
 }
