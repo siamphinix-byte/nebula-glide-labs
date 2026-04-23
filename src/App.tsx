@@ -43,6 +43,7 @@ import { Approvals } from './pages/timesheets/Approvals';
 import { Reports } from './pages/timesheets/Reports';
 import { ZoomMeetings } from './pages/ZoomMeetings';
 import { GoogleMeetings } from './pages/GoogleMeetings';
+import { Meetings } from './pages/Meetings';
 import { BudgetDashboard } from './pages/budget/BudgetDashboard';
 import { Budgets } from './pages/budget/Budgets';
 import { Expenses } from './pages/budget/Expenses';
@@ -156,8 +157,9 @@ export default function App() {
         <Route path="/app/timesheets/approvals" element={<DashboardLayout><Approvals /></DashboardLayout>} />
         <Route path="/app/timesheets/reports" element={<DashboardLayout><Reports /></DashboardLayout>} />
         
-        <Route path="/app/zoom-meetings" element={<DashboardLayout><ZoomMeetings /></DashboardLayout>} />
-        <Route path="/app/google-meetings" element={<DashboardLayout><GoogleMeetings /></DashboardLayout>} />
+        <Route path="/app/meetings" element={<DashboardLayout><Meetings /></DashboardLayout>} />
+        <Route path="/app/zoom-meetings" element={<DashboardLayout><Meetings /></DashboardLayout>} />
+        <Route path="/app/google-meetings" element={<DashboardLayout><Meetings /></DashboardLayout>} />
         
         <Route path="/app/budget/dashboard" element={<DashboardLayout><BudgetDashboard /></DashboardLayout>} />
         <Route path="/app/budget/budgets" element={<DashboardLayout><Budgets /></DashboardLayout>} />
