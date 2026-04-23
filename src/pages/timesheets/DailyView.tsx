@@ -1,255 +1,431 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Reveal, StaggerReveal } from '../../components/GSAPWrapper';
-import { Plus, Search, Filter, Calendar as CalendarIcon, Clock, Edit, Trash2, CheckCircle2 } from 'lucide-react';
+import {
+  Calendar as CalendarIcon,
+  Check,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Edit,
+  Filter,
+  Plus,
+  Search,
+  Trash2,
+} from 'lucide-react';
+import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-const timeEntries = [
-  { id: 1, date: '3/8/2026', project: 'Security Audit', task: 'Security Vulnerability Assessment', hours: '1.00h', billable: true },
-  { id: 2, date: '2/24/2026', project: 'Analytics System', task: 'Third-party Integration', hours: '2.00h', billable: true },
-  { id: 3, date: '2/24/2026', project: 'Analytics System', task: 'Bug Fix Implementation', hours: '1.00h', billable: true },
-  { id: 4, date: '2/24/2026', project: 'API Gateway', task: 'Bug Fix Implementation', hours: '1.00h', billable: true },
-  { id: 5, date: '2/24/2026', project: 'API Gateway', task: 'Payment Gateway Integration', hours: '3.00h', billable: true },
-  { id: 6, date: '2/24/2026', project: 'API Gateway', task: 'Bug Fix Implementation', hours: '1.00h', billable: true },
-  { id: 7, date: '2/24/2026', project: 'API Gateway', task: 'Payment Gateway Integration', hours: '3.00h', billable: true },
-  { id: 8, date: '3/8/2026', project: 'Customer Portal', task: 'Third-party Integration', hours: '1.00h', billable: true },
-  { id: 9, date: '3/8/2026', project: 'Customer Portal', task: 'Security Vulnerability Assessment', hours: '3.00h', billable: true },
-  { id: 10, date: '2/24/2026', project: 'Mobile Banking App', task: 'API Endpoint Development', hours: '1.00h', billable: true },
-  { id: 11, date: '2/28/2026', project: 'Data Warehouse', task: 'Security Vulnerability Assessment', hours: '1.00h', billable: true },
-  { id: 12, date: '2/28/2026', project: 'Data Warehouse', task: 'Data Migration Script', hours: '1.00h', billable: true },
+type Entry = {
+  id: number;
+  date: string;
+  project: string;
+  task: string;
+  hours: number;
+  billable: boolean;
+};
+
+const initialEntries: Entry[] = [
+  { id: 1, date: '3/8/2026', project: 'Security Audit', task: 'Security Vulnerability Assessment', hours: 1, billable: true },
+  { id: 2, date: '2/24/2026', project: 'Analytics System', task: 'Third-party Integration', hours: 2, billable: true },
+  { id: 3, date: '2/24/2026', project: 'Analytics System', task: 'Bug Fix Implementation', hours: 1, billable: true },
+  { id: 4, date: '2/24/2026', project: 'API Gateway', task: 'Bug Fix Implementation', hours: 1, billable: true },
+  { id: 5, date: '2/24/2026', project: 'API Gateway', task: 'Payment Gateway Integration', hours: 3, billable: true },
+  { id: 6, date: '2/24/2026', project: 'API Gateway', task: 'Bug Fix Implementation', hours: 1, billable: false },
+  { id: 7, date: '2/24/2026', project: 'API Gateway', task: 'Payment Gateway Integration', hours: 3, billable: true },
+  { id: 8, date: '3/8/2026', project: 'Customer Portal', task: 'Third-party Integration', hours: 1, billable: true },
+  { id: 9, date: '3/8/2026', project: 'Customer Portal', task: 'Security Vulnerability Assessment', hours: 3, billable: true },
+  { id: 10, date: '2/24/2026', project: 'Mobile Banking App', task: 'API Endpoint Development', hours: 1, billable: true },
+  { id: 11, date: '2/28/2026', project: 'Data Warehouse', task: 'Security Vulnerability Assessment', hours: 1, billable: false },
+  { id: 12, date: '2/28/2026', project: 'Data Warehouse', task: 'Data Migration Script', hours: 1, billable: true },
 ];
 
+const dailyTrend = [
+  { slot: '09:00', hours: 1 },
+  { slot: '11:00', hours: 2 },
+  { slot: '13:00', hours: 1.5 },
+  { slot: '15:00', hours: 3 },
+  { slot: '17:00', hours: 2.5 },
+  { slot: '19:00', hours: 1 },
+];
+
+const formatHours = (h: number) => `${h.toFixed(2)}h`;
+
 export function DailyView() {
+  const [entries, setEntries] = useState<Entry[]>(initialEntries);
+  const [query, setQuery] = useState('');
+  const [showBillableOnly, setShowBillableOnly] = useState(false);
+  const [currentDate, setCurrentDate] = useState('04/23/2026');
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+
+  const filtered = useMemo(() => {
+    return entries.filter((entry) => {
+      const term = query.toLowerCase();
+      const hit =
+        entry.project.toLowerCase().includes(term) ||
+        entry.task.toLowerCase().includes(term) ||
+        entry.date.toLowerCase().includes(term);
+      return hit && (!showBillableOnly || entry.billable);
+    });
+  }, [entries, query, showBillableOnly]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  const paged = useMemo(() => {
+    const start = (page - 1) * perPage;
+    return filtered.slice(start, start + perPage);
+  }, [filtered, page, perPage]);
+
+  const totalHours = filtered.reduce((sum, e) => sum + e.hours, 0);
+  const billableHours = filtered.filter((e) => e.billable).reduce((sum, e) => sum + e.hours, 0);
+  const utilization = totalHours > 0 ? Math.round((totalHours / 8) * 100) : 0;
+  const billableRate = totalHours > 0 ? Math.round((billableHours / totalHours) * 100) : 0;
+
+  const projectHours = useMemo(() => {
+    const map = new Map<string, number>();
+    filtered.forEach((entry) => {
+      map.set(entry.project, (map.get(entry.project) || 0) + entry.hours);
+    });
+    return [...map.entries()].map(([project, hours]) => ({ project, hours })).slice(0, 5);
+  }, [filtered]);
+
+  const billableBreakdown = [
+    { name: 'Billable', value: billableHours, color: 'var(--color-brand-teal)' },
+    { name: 'Non-Billable', value: Math.max(totalHours - billableHours, 0), color: 'var(--color-brand-primary)' },
+  ];
+
+  const toggleSelectRow = (id: number) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const allVisibleSelected = paged.length > 0 && paged.every((row) => selectedIds.includes(row.id));
+  const toggleSelectAllVisible = () => {
+    setSelectedIds((prev) => {
+      if (allVisibleSelected) return prev.filter((id) => !paged.some((row) => row.id === id));
+      const toAdd = paged.map((row) => row.id).filter((id) => !prev.includes(id));
+      return [...prev, ...toAdd];
+    });
+  };
+
+  const markSelected = (billable: boolean) => {
+    if (!selectedIds.length) return;
+    setEntries((prev) => prev.map((e) => (selectedIds.includes(e.id) ? { ...e, billable } : e)));
+  };
+
+  const deleteEntry = (id: number) => {
+    setEntries((prev) => prev.filter((e) => e.id !== id));
+    setSelectedIds((prev) => prev.filter((x) => x !== id));
+  };
+
+  const addEntry = () => {
+    const next: Entry = {
+      id: Date.now(),
+      date: '4/23/2026',
+      project: 'Website Operations',
+      task: 'Daily QA & Content Review',
+      hours: 1,
+      billable: true,
+    };
+    setEntries((prev) => [next, ...prev]);
+  };
+
   return (
-    <div className="max-w-[1400px] mx-auto space-y-6 pb-24">
-      
-      {/* Header */}
+    <div className="mx-auto max-w-[1400px] space-y-6 pb-24 font-sans animate-fade-in">
       <Reveal direction="down">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <h1 className="text-3xl font-bold tracking-tight text-white">Daily View</h1>
+        <div className="mb-1 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-3xl font-black tracking-tight text-white">Daily View</h1>
           <div className="flex flex-wrap items-center gap-3">
-             <button className="bg-[#1c1b1b] border border-white/10 hover:bg-white/5 text-white px-4 py-2 rounded-xl text-[13px] font-bold transition-all shadow-sm">
-               Mark Billable
-             </button>
-             <button className="bg-[#1c1b1b] border border-white/10 hover:bg-white/5 text-white px-4 py-2 rounded-xl text-[13px] font-bold transition-all shadow-sm">
-               Mark Non-Billable
-             </button>
+            <button
+              onClick={() => markSelected(true)}
+              className="rounded-full border border-[var(--color-brand-teal)]/35 bg-[var(--color-brand-teal)]/15 px-4 py-2 text-[13px] font-bold text-[var(--color-brand-teal)] transition-colors hover:bg-[var(--color-brand-teal)]/25"
+            >
+              Mark Billable
+            </button>
+            <button
+              onClick={() => markSelected(false)}
+              className="rounded-full border border-[var(--color-brand-primary)]/35 bg-[var(--color-brand-primary)]/15 px-4 py-2 text-[13px] font-bold text-[var(--color-brand-primary)] transition-colors hover:bg-[var(--color-brand-primary)]/25"
+            >
+              Mark Non-Billable
+            </button>
           </div>
         </div>
       </Reveal>
 
-      {/* Date Navigator */}
       <Reveal delay={0.1}>
-        <div className="bg-[#1c1b1b] p-4 sm:p-6 rounded-2xl border border-white/5 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-             <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 bg-[#131313] hover:bg-white/5 text-white/60 transition-colors">
-               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-             </button>
-             <h2 className="text-xl font-bold text-white flex items-center gap-3">
-               Thursday, April 23, 2026 
-               <span className="bg-[#bbf600]/20 text-[#bbf600] text-[10px] uppercase font-black px-2 py-0.5 rounded-lg border border-[#bbf600]/30">Today</span>
-             </h2>
-             <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 bg-[#131313] hover:bg-white/5 text-white/60 transition-colors">
-               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-             </button>
+        <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-4 shadow-xl md:flex-row md:items-center">
+          <div className="flex flex-wrap items-center gap-3">
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-[var(--color-brand-bg)] text-white/70 transition-colors hover:bg-white/10">
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <h2 className="text-xl font-bold text-white">
+              Thursday, April 23, 2026{' '}
+              <span className="ml-2 rounded-full border border-[var(--color-brand-teal)]/30 bg-[var(--color-brand-teal)]/15 px-2 py-0.5 text-[10px] uppercase tracking-wider text-[var(--color-brand-teal)]">
+                Today
+              </span>
+            </h2>
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-[var(--color-brand-bg)] text-white/70 transition-colors hover:bg-white/10">
+              <ChevronRight className="h-5 w-5" />
+            </button>
           </div>
           <div className="relative">
-             <input type="text" value="04/23/2026" readOnly className="bg-[#131313] border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none w-48" />
-             <CalendarIcon className="w-4 h-4 absolute right-4 top-1/2 -mt-2 text-white/40" />
+            <input
+              type="text"
+              value={currentDate}
+              onChange={(e) => setCurrentDate(e.target.value)}
+              className="w-48 rounded-xl border border-white/15 bg-[var(--color-brand-bg)] px-4 py-3 text-sm font-medium text-white outline-none focus:border-[var(--color-brand-primary)]"
+            />
+            <CalendarIcon className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/45" />
           </div>
         </div>
       </Reveal>
 
-      {/* KPI Stats */}
-      <Reveal delay={0.2}>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-6">
-           <div className="bg-[#1c1b1b] p-5 rounded-2xl border border-white/5 shadow-lg flex flex-col justify-center">
-             <div className="flex items-center gap-2 text-[#9fa9ff] mb-2 font-bold text-[13px]">
-               <Clock className="w-4 h-4" /> Total Hours
-             </div>
-             <span className="text-3xl font-black text-[#9fa9ff] tracking-tight">15.00h</span>
-           </div>
-           <div className="bg-[#1c1b1b] p-5 rounded-2xl border border-white/5 shadow-lg flex flex-col justify-center">
-             <div className="flex items-center gap-2 text-[#bbf600] mb-2 font-bold text-[13px]">
-               <CalendarIcon className="w-4 h-4" /> Billable Hours
-             </div>
-             <span className="text-3xl font-black text-[#bbf600] tracking-tight">15.00h</span>
-           </div>
-           <div className="bg-[#1c1b1b] p-5 rounded-2xl border border-white/5 shadow-lg flex flex-col justify-center">
-             <div className="flex items-center gap-2 text-[#d4bbff] mb-2 font-bold text-[13px]">
-               Entries
-             </div>
-             <span className="text-3xl font-black text-[#d4bbff] tracking-tight">10</span>
-           </div>
-           <div className="bg-[#1c1b1b] p-5 rounded-2xl border border-white/5 shadow-lg flex flex-col justify-center">
-             <div className="flex items-center gap-2 text-[#eb7146] mb-2 font-bold text-[13px]">
-               Utilization
-             </div>
-             <span className="text-3xl font-black text-[#eb7146] tracking-tight">188%</span>
-             <span className="text-white/30 text-[10px] font-medium mt-1">Based on 8h day</span>
-           </div>
-        </div>
-      </Reveal>
+      <StaggerReveal className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-5">
+          <p className="mb-2 flex items-center gap-2 text-[13px] font-bold text-[var(--color-brand-secondary)]"><Clock className="h-4 w-4" /> Total Hours</p>
+          <p className="text-4xl font-black tracking-tight text-white">{formatHours(totalHours)}</p>
+        </article>
+        <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-5">
+          <p className="mb-2 flex items-center gap-2 text-[13px] font-bold text-[var(--color-brand-teal)]"><CalendarIcon className="h-4 w-4" /> Billable Hours</p>
+          <p className="text-4xl font-black tracking-tight text-[var(--color-brand-teal)]">{formatHours(billableHours)}</p>
+        </article>
+        <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-5">
+          <p className="mb-2 text-[13px] font-bold text-[var(--color-brand-primary)]">Entries</p>
+          <p className="text-4xl font-black tracking-tight text-[var(--color-brand-primary)]">{filtered.length}</p>
+        </article>
+        <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-5">
+          <p className="mb-2 text-[13px] font-bold text-[var(--color-brand-secondary)]">Utilization</p>
+          <p className="text-4xl font-black tracking-tight text-[var(--color-brand-secondary)]">{utilization}%</p>
+          <p className="mt-1 text-[11px] text-white/45">Based on 8h day</p>
+        </article>
+      </StaggerReveal>
 
-      {/* Main List Container */}
-      <Reveal delay={0.3}>
-        <div className="bg-[#1c1b1b] rounded-2xl border border-white/5 shadow-2xl overflow-hidden mt-6">
-          
-          <div className="p-6 flex flex-col md:flex-row items-center justify-between border-b border-white/5 gap-4">
-            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-              <span className="w-2 h-8 bg-blue-500 rounded-full inline-block"></span>
+      <Reveal delay={0.2}>
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] shadow-2xl">
+          <div className="flex flex-col items-start justify-between gap-4 border-b border-white/10 p-6 md:flex-row md:items-center">
+            <h2 className="flex items-center gap-3 text-2xl font-black tracking-tight text-white">
+              <span className="inline-block h-7 w-1.5 rounded-full bg-[var(--color-brand-primary)]" />
               Time Entries
             </h2>
-            <button className="bg-[#bbf600] text-[#131313] px-5 py-2.5 rounded-xl text-[13px] font-bold flex items-center gap-2 hover:bg-[#bbf600]/90 transition-all shadow-[0_0_20px_rgba(187,246,0,0.2)]">
-               <Plus className="w-4 h-4" /> Add Entry
+            <button
+              onClick={addEntry}
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--color-brand-secondary)]/35 bg-[var(--color-brand-secondary)] px-5 py-2.5 text-[13px] font-bold text-[var(--color-brand-bg)] transition-all hover:scale-[1.02]"
+            >
+              <Plus className="h-4 w-4" /> Add Entry
             </button>
           </div>
 
-          <div className="p-4 bg-[#131313] flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/5">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto">
-               <div className="relative w-full sm:w-auto">
-                 <Search className="w-4 h-4 absolute left-4 top-1/2 -mt-2 text-white/40" />
-                 <input type="text" placeholder="Search entries..." className="pl-11 pr-4 py-2.5 w-full sm:w-[260px] bg-[#1c1b1b] border border-white/10 rounded-xl text-[14px] focus:outline-none focus:border-[#bbf600] text-white transition-colors" />
-               </div>
-               <button className="bg-[#bbf600] text-[#131313] px-5 py-2.5 w-full sm:w-auto justify-center rounded-xl text-[13px] font-bold flex items-center gap-2 hover:bg-[#bbf600]/90 transition-all">
-                 <Search className="w-4 h-4"/> Search
-               </button>
-               <button className="bg-[#1c1b1b] border border-white/10 text-white/80 px-5 py-2.5 w-full sm:w-auto justify-center rounded-xl text-[13px] font-bold flex items-center gap-2 hover:bg-white/5 transition-all">
-                 <Filter className="w-4 h-4"/> Filters
-               </button>
+          <div className="flex flex-col gap-4 border-b border-white/10 bg-[var(--color-brand-bg)]/60 p-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="relative w-full sm:w-[280px]">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/45" />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search entries..."
+                  className="w-full rounded-xl border border-white/15 bg-[var(--color-brand-surface)] px-10 py-2.5 text-sm text-white outline-none placeholder:text-white/35 focus:border-[var(--color-brand-primary)]"
+                />
+              </div>
+              <button
+                onClick={() => setShowBillableOnly((v) => !v)}
+                className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-[13px] font-bold transition-colors ${
+                  showBillableOnly
+                    ? 'border-[var(--color-brand-teal)]/35 bg-[var(--color-brand-teal)]/15 text-[var(--color-brand-teal)]'
+                    : 'border-white/15 bg-[var(--color-brand-surface)] text-white/80 hover:bg-white/10'
+                }`}
+              >
+                <Filter className="h-4 w-4" /> {showBillableOnly ? 'Billable Only' : 'All Entries'}
+              </button>
             </div>
-            <div className="flex items-center gap-3 justify-end w-full lg:w-auto">
-               <span className="text-xs text-white/40 font-medium">Per Page:</span>
-               <div className="relative">
-                 <select className="bg-[#1c1b1b] border border-white/10 rounded-xl pl-4 pr-8 py-2 text-sm font-medium text-white focus:outline-none focus:border-[#bbf600] appearance-none cursor-pointer">
-                   <option>10</option>
-                 </select>
-                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white/50">
-                    <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-                 </div>
-               </div>
+            <div className="flex items-center gap-2 text-xs text-white/45">
+              Per Page:
+              <select
+                value={perPage}
+                onChange={(e) => {
+                  setPerPage(Number(e.target.value));
+                  setPage(1);
+                }}
+                className="rounded-xl border border-white/15 bg-[var(--color-brand-surface)] px-3 py-1.5 text-sm text-white outline-none"
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+              </select>
             </div>
           </div>
 
-          {/* Time Summary Embed */}
-          <div className="p-6 pb-0">
-             <div className="bg-[#131313]/50 border border-white/5 rounded-2xl p-6">
-                <div className="flex justify-between items-center mb-6">
-                   <h3 className="text-lg font-bold text-white flex items-center gap-3">
-                     <span className="w-1.5 h-6 bg-blue-500 rounded-full inline-block"></span>
-                     Time Summary
-                   </h3>
-                   <span className="bg-[#bbf600]/10 text-[#bbf600] border border-[#bbf600]/20 px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1">
-                     <CheckCircle2 className="w-3 h-3" /> All Hours Billable
-                   </span>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                   <div className="bg-[#1c1b1b] rounded-xl p-4 flex items-center justify-between border border-white/5 relative overflow-hidden">
-                      <div className="flex items-center gap-4 relative z-10">
-                        <div className="w-10 h-10 rounded-full bg-[#9fa9ff]/10 flex items-center justify-center text-[#9fa9ff]">
-                          <Clock className="w-5 h-5"/>
-                        </div>
-                        <div>
-                          <p className="text-[11px] text-white/50 font-bold uppercase tracking-wider mb-0.5">Total Hours</p>
-                          <p className="text-xl font-black text-white">15.0h</p>
-                        </div>
-                      </div>
-                      <CheckCircle2 className="w-6 h-6 text-[#bbf600] opacity-30 relative z-10" />
-                   </div>
-                   <div className="bg-[#1c1b1b] rounded-xl p-4 flex items-center justify-between border border-white/5 relative overflow-hidden">
-                      <div className="flex items-center gap-4 relative z-10">
-                        <div className="w-10 h-10 rounded-full bg-[#bbf600]/10 flex items-center justify-center text-[#bbf600]">
-                          <CalendarIcon className="w-5 h-5"/>
-                        </div>
-                        <div>
-                          <p className="text-[11px] text-white/50 font-bold uppercase tracking-wider mb-0.5">Billable Hours</p>
-                          <p className="text-xl font-black text-[#bbf600]">15.0h</p>
-                        </div>
-                      </div>
-                   </div>
-                </div>
+          <div className="grid grid-cols-1 gap-4 p-6 xl:grid-cols-[1.2fr_1fr]">
+            <div className="rounded-2xl border border-white/10 bg-[var(--color-brand-bg)]/45 p-5">
+              <div className="mb-5 flex items-center justify-between">
+                <h3 className="flex items-center gap-3 text-lg font-bold text-white">
+                  <span className="inline-block h-6 w-1.5 rounded-full bg-[var(--color-brand-secondary)]" /> Time Summary
+                </h3>
+                <span className="inline-flex items-center gap-1 rounded-full border border-[var(--color-brand-teal)]/25 bg-[var(--color-brand-teal)]/10 px-3 py-1 text-xs font-bold text-[var(--color-brand-teal)]">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> {billableRate >= 90 ? 'Strong Billable Mix' : 'Review Billable Split'}
+                </span>
+              </div>
 
-                <div className="bg-[#1c1b1b] rounded-xl p-5 border border-white/5">
-                   <div className="flex justify-between items-center mb-3">
-                     <span className="text-[13px] font-bold text-white">Billable Rate</span>
-                     <span className="text-[16px] font-black text-white">100%</span>
-                   </div>
-                   <div className="w-full h-3 bg-[#131313] rounded-full overflow-hidden border border-white/5 relative">
-                      <div className="h-full bg-[#bbf600] rounded-full shadow-[0_0_10px_#bbf600]" style={{ width: '100%' }}></div>
-                   </div>
-                   <div className="text-center mt-2">
-                     <span className="text-[10px] font-bold text-white/40 tracking-wider">15h / 15h</span>
-                   </div>
+              <div className="mb-5 grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div className="rounded-xl border border-white/10 bg-[var(--color-brand-surface)] p-4">
+                  <p className="text-[11px] uppercase tracking-wider text-white/45">Total Hours</p>
+                  <p className="mt-1 text-3xl font-black text-white">{formatHours(totalHours)}</p>
                 </div>
-             </div>
+                <div className="rounded-xl border border-white/10 bg-[var(--color-brand-surface)] p-4">
+                  <p className="text-[11px] uppercase tracking-wider text-white/45">Billable Hours</p>
+                  <p className="mt-1 text-3xl font-black text-[var(--color-brand-teal)]">{formatHours(billableHours)}</p>
+                </div>
+              </div>
+
+              <div className="mb-3 flex items-center justify-between text-sm font-bold text-white">
+                <span>Billable Rate</span>
+                <span>{billableRate}%</span>
+              </div>
+              <div className="h-3 overflow-hidden rounded-full border border-white/10 bg-[var(--color-brand-surface)]">
+                <div className="h-full rounded-full bg-[var(--color-brand-teal)] transition-all duration-500" style={{ width: `${billableRate}%` }} />
+              </div>
+              <p className="mt-2 text-center text-xs font-semibold text-white/40">
+                {billableHours.toFixed(1)}h / {totalHours.toFixed(1)}h
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <div className="h-[210px] rounded-2xl border border-white/10 bg-[var(--color-brand-bg)]/45 p-4">
+                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/55">Daily Hour Trend</p>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={dailyTrend}>
+                    <XAxis dataKey="slot" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,.45)', fontSize: 11 }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,.45)', fontSize: 11 }} />
+                    <Tooltip
+                      cursor={{ fill: 'rgba(255,255,255,.05)' }}
+                      contentStyle={{ backgroundColor: 'var(--color-brand-bg)', borderColor: 'rgba(255,255,255,.15)', borderRadius: 10, color: 'white' }}
+                    />
+                    <Bar dataKey="hours" radius={[5, 5, 0, 0]} fill="var(--color-brand-primary)" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="h-[210px] rounded-2xl border border-white/10 bg-[var(--color-brand-bg)]/45 p-4">
+                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/55">Billable Breakdown</p>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={billableBreakdown} dataKey="value" innerRadius={45} outerRadius={65} paddingAngle={5} stroke="none">
+                      {billableBreakdown.map((slice) => (
+                        <Cell key={slice.name} fill={slice.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ backgroundColor: 'var(--color-brand-bg)', borderColor: 'rgba(255,255,255,.15)', borderRadius: 10, color: 'white' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
 
-          <div className="p-6">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+          <div className="px-6 pb-6">
+            <div className="overflow-x-auto rounded-xl border border-white/10 bg-[var(--color-brand-bg)]/40">
+              <table className="w-full min-w-[900px] border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-white/5 text-[10px] uppercase font-bold text-white/40 tracking-widest">
-                    <th className="p-4 font-bold w-12 pt-0">
-                      <div className="w-4 h-4 rounded border-2 border-white/20 cursor-pointer"></div>
+                  <tr className="border-b border-white/10 text-[10px] uppercase tracking-widest text-white/45">
+                    <th className="w-12 p-4">
+                      <button
+                        onClick={toggleSelectAllVisible}
+                        className={`flex h-4 w-4 items-center justify-center rounded border ${
+                          allVisibleSelected ? 'border-[var(--color-brand-teal)] bg-[var(--color-brand-teal)]/20' : 'border-white/25'
+                        }`}
+                      >
+                        {allVisibleSelected && <Check className="h-3 w-3 text-[var(--color-brand-teal)]" />}
+                      </button>
                     </th>
-                    <th className="p-4 font-bold pt-0 min-w[120px]">Date</th>
-                    <th className="p-4 font-bold pt-0 min-w-[200px]">Project</th>
-                    <th className="p-4 font-bold pt-0 min-w-[300px]">Task</th>
-                    <th className="p-4 font-bold pt-0 w-24">Hours</th>
-                    <th className="p-4 font-bold pt-0 w-32">Billable</th>
-                    <th className="p-4 font-bold pt-0 w-24">Actions</th>
+                    <th className="p-4">Date</th>
+                    <th className="p-4">Project</th>
+                    <th className="p-4">Task</th>
+                    <th className="p-4">Hours</th>
+                    <th className="p-4">Billable</th>
+                    <th className="p-4">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="text-[13px]">
-                  {timeEntries.map((row, i) => (
-                    <React.Fragment key={row.id}>
-                      <Reveal delay={0.1 * Math.min(i, 5)}>
-                        <tr className="border-b border-white/5 hover:bg-white/5 transition-colors group">
-                          <td className="p-4">
-                            <div className="w-4 h-4 rounded border-2 border-[#bbf600]/50 cursor-pointer flex items-center justify-center">
-                               {/* Check if implemented */}
-                            </div>
-                          </td>
-                          <td className="p-4 text-white/60 font-mono">{row.date}</td>
-                          <td className="p-4 font-semibold text-white tracking-tight">{row.project}</td>
-                          <td className="p-4 text-white/50">{row.task}</td>
-                          <td className="p-4 font-mono text-[#9fa9ff] font-medium">{row.hours}</td>
-                          <td className="p-4">
-                             {row.billable && (
-                               <span className="bg-[#bbf600]/10 text-[#bbf600] border border-[#bbf600]/20 px-2.5 py-1 rounded-md text-[10px] font-bold flex items-center w-fit gap-1.5 uppercase tracking-wider">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-[#bbf600]"></span>
-                                  Billable
-                               </span>
-                             )}
-                          </td>
-                          <td className="p-4">
-                            <div className="flex gap-4">
-                              <button className="text-[#ebd356] hover:text-[#ebd356]/80 transition-colors opacity-70 hover:opacity-100" title="Edit"><Edit className="w-4 h-4" /></button>
-                              <button className="text-[#ffb4ab] hover:text-[#ffb4ab]/80 transition-colors opacity-70 hover:opacity-100" title="Delete"><Trash2 className="w-4 h-4" /></button>
-                            </div>
-                          </td>
-                        </tr>
-                      </Reveal>
-                    </React.Fragment>
-                  ))}
+                  {paged.map((row) => {
+                    const selected = selectedIds.includes(row.id);
+                    return (
+                      <tr key={row.id} className="border-b border-white/10 transition-colors hover:bg-white/5">
+                        <td className="p-4">
+                          <button
+                            onClick={() => toggleSelectRow(row.id)}
+                            className={`flex h-4 w-4 items-center justify-center rounded border ${
+                              selected ? 'border-[var(--color-brand-teal)] bg-[var(--color-brand-teal)]/20' : 'border-white/25'
+                            }`}
+                          >
+                            {selected && <Check className="h-3 w-3 text-[var(--color-brand-teal)]" />}
+                          </button>
+                        </td>
+                        <td className="p-4 text-white/70">{row.date}</td>
+                        <td className="p-4 font-semibold text-white">{row.project}</td>
+                        <td className="p-4 text-white/65">{row.task}</td>
+                        <td className="p-4 font-medium text-[var(--color-brand-secondary)]">{formatHours(row.hours)}</td>
+                        <td className="p-4">
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
+                              row.billable
+                                ? 'border-[var(--color-brand-teal)]/25 bg-[var(--color-brand-teal)]/10 text-[var(--color-brand-teal)]'
+                                : 'border-[var(--color-brand-primary)]/25 bg-[var(--color-brand-primary)]/10 text-[var(--color-brand-primary)]'
+                            }`}
+                          >
+                            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                            {row.billable ? 'Billable' : 'Non-Billable'}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <button className="text-[var(--color-brand-secondary)] transition-opacity hover:opacity-80" title="Edit">
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button onClick={() => deleteEntry(row.id)} className="text-[var(--color-brand-primary)] transition-opacity hover:opacity-80" title="Delete">
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           </div>
 
-          {/* Pagination */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 border-t border-white/5 bg-[#131313] text-[13px] text-white/50">
-            <span className="font-medium">Showing 1 to 10 of 179 entries</span>
-            <div className="flex gap-2">
-              <button className="px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 transition-colors font-medium">Previous</button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#bbf600] text-[#131313] font-bold shadow-[0_0_10px_rgba(187, 246, 0,0.3)]">1</button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 hover:bg-white/5 transition-colors font-medium text-white">2</button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 hover:bg-white/5 transition-colors font-medium text-white line-clamp-none hidden sm:flex">3</button>
-              <span className="w-8 h-8 flex items-center justify-center font-medium">...</span>
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 hover:bg-white/5 transition-colors font-medium text-white">18</button>
-              <button className="px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 transition-colors text-white font-medium">Next</button>
+          <div className="flex flex-col items-center justify-between gap-4 border-t border-white/10 bg-[var(--color-brand-bg)]/60 p-6 text-[13px] text-white/55 sm:flex-row">
+            <span>
+              Showing {(page - 1) * perPage + (paged.length ? 1 : 0)} to {(page - 1) * perPage + paged.length} of {filtered.length} entries
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="rounded-lg border border-white/15 px-3 py-1.5 transition-colors hover:bg-white/10"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .slice(0, 6)
+                .map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => setPage(num)}
+                    className={`h-8 w-8 rounded-lg border text-sm font-bold transition-colors ${
+                      page === num
+                        ? 'border-[var(--color-brand-secondary)] bg-[var(--color-brand-secondary)] text-[var(--color-brand-bg)]'
+                        : 'border-white/15 hover:bg-white/10'
+                    }`}
+                  >
+                    {num}
+                  </button>
+                ))}
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                className="rounded-lg border border-white/15 px-3 py-1.5 transition-colors hover:bg-white/10"
+              >
+                Next
+              </button>
             </div>
           </div>
-
         </div>
       </Reveal>
     </div>
