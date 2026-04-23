@@ -41,8 +41,6 @@ import { MonthlyView } from './pages/timesheets/MonthlyView';
 import { CalendarView } from './pages/timesheets/CalendarView';
 import { Approvals } from './pages/timesheets/Approvals';
 import { Reports } from './pages/timesheets/Reports';
-import { ZoomMeetings } from './pages/ZoomMeetings';
-import { GoogleMeetings } from './pages/GoogleMeetings';
 import { Meetings } from './pages/Meetings';
 import { BudgetDashboard } from './pages/budget/BudgetDashboard';
 import { Budgets } from './pages/budget/Budgets';
