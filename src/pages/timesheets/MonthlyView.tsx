@@ -1,140 +1,265 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Reveal } from '../../components/GSAPWrapper';
-import { Calendar as CalendarIcon, Clock, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Clock, TrendingUp } from 'lucide-react';
+import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-const projectStats = [
-  { name: 'Analytics System', total: '420.0h', pct: '89%', billable: '328.0h', non: '92.0h', w: '89%' },
-  { name: 'Security Audit', total: '25.1h', pct: '5%', billable: '25.1h', non: '0.0h', w: '5%' },
-  { name: 'Performance Suite', total: '3.5h', pct: '1%', billable: '3.5h', non: '0.0h', w: '1%' },
-  { name: 'Admin Dashboard', total: '-2.0h', pct: '-0%', billable: '-2.0h', non: '0.0h', w: '0%', isNeg: true },
-  { name: 'Payment Integration', total: '2.0h', pct: '0%', billable: '2.0h', non: '0.0h', w: '1%' },
-  { name: 'AI Chatbot', total: '9.0h', pct: '2%', billable: '9.0h', non: '0.0h', w: '2%' },
-  { name: 'Inventory System', total: '3.0h', pct: '1%', billable: '3.0h', non: '0.0h', w: '1%' },
-  { name: 'CRM Enhancement', total: '2.0h', pct: '0%', billable: '2.0h', non: '0.0h', w: '1%' },
-  { name: 'Data Warehouse', total: '2.0h', pct: '0%', billable: '2.0h', non: '0.0h', w: '1%' },
-  { name: 'Mobile Banking App', total: '1.0h', pct: '0%', billable: '1.0h', non: '0.0h', w: '1%' },
-  { name: 'Customer Portal', total: '4.0h', pct: '1%', billable: '4.0h', non: '0.0h', w: '1%' },
-  { name: 'API Gateway', total: '4.0h', pct: '1%', billable: '4.0h', non: '0.0h', w: '1%' },
+type ProjectStat = {
+  name: string;
+  total: number;
+  billable: number;
+};
+
+type MonthData = {
+  label: string;
+  workingDays: number;
+  projects: ProjectStat[];
+  weekly: { label: string; entries: number; total: number; billable: number }[];
+};
+
+const monthlyData: MonthData[] = [
+  {
+    label: 'March 2026',
+    workingDays: 22,
+    projects: [
+      { name: 'Analytics System', total: 402.4, billable: 320.2 },
+      { name: 'Security Audit', total: 34.1, billable: 31.5 },
+      { name: 'Payment Integration', total: 16.2, billable: 13.2 },
+      { name: 'AI Chatbot', total: 12.8, billable: 11.2 },
+      { name: 'Customer Portal', total: 8.1, billable: 6.9 },
+    ],
+    weekly: [
+      { label: 'Week 1', entries: 42, total: 108.4, billable: 88.2 },
+      { label: 'Week 2', entries: 39, total: 97.3, billable: 77.5 },
+      { label: 'Week 3', entries: 48, total: 115.1, billable: 89.2 },
+      { label: 'Week 4', entries: 34, total: 93.8, billable: 74.1 },
+    ],
+  },
+  {
+    label: 'April 2026',
+    workingDays: 21,
+    projects: [
+      { name: 'Analytics System', total: 420.0, billable: 328.0 },
+      { name: 'Security Audit', total: 25.1, billable: 25.1 },
+      { name: 'Performance Suite', total: 13.5, billable: 11.5 },
+      { name: 'Admin Dashboard', total: 12.0, billable: 9.0 },
+      { name: 'Payment Integration', total: 9.0, billable: 8.0 },
+      { name: 'AI Chatbot', total: 9.0, billable: 9.0 },
+      { name: 'Inventory System', total: 7.0, billable: 7.0 },
+      { name: 'CRM Enhancement', total: 6.0, billable: 4.0 },
+      { name: 'Data Warehouse', total: 6.0, billable: 5.0 },
+      { name: 'Mobile Banking App', total: 4.0, billable: 3.0 },
+      { name: 'Customer Portal', total: 4.0, billable: 4.0 },
+      { name: 'API Gateway', total: 4.0, billable: 3.0 },
+    ],
+    weekly: [
+      { label: 'Week 1', entries: 37, total: 101.5, billable: 83.2 },
+      { label: 'Week 2', entries: 41, total: 112.4, billable: 90.1 },
+      { label: 'Week 3', entries: 46, total: 119.2, billable: 97.5 },
+      { label: 'Week 4', entries: 33, total: 95.5, billable: 74.8 },
+      { label: 'Week 5', entries: 22, total: 44.9, billable: 36.0 },
+    ],
+  },
+  {
+    label: 'May 2026',
+    workingDays: 22,
+    projects: [
+      { name: 'Analytics System', total: 388.3, billable: 300.1 },
+      { name: 'Security Audit', total: 21.7, billable: 20.2 },
+      { name: 'AI Chatbot', total: 14.5, billable: 13.4 },
+      { name: 'Customer Portal', total: 12.8, billable: 11.5 },
+      { name: 'API Gateway', total: 9.2, billable: 8.0 },
+    ],
+    weekly: [
+      { label: 'Week 1', entries: 35, total: 96.4, billable: 74.3 },
+      { label: 'Week 2', entries: 40, total: 108.7, billable: 86.1 },
+      { label: 'Week 3', entries: 44, total: 114.5, billable: 92.7 },
+      { label: 'Week 4', entries: 39, total: 105.2, billable: 80.9 },
+    ],
+  },
 ];
 
-const weeklyStats = [
-  { w: 'Week 1/4 - 5/4', entries: 0, total: '0.0h', billable: '0.0h billable' },
-  { w: 'Week 8/4 - 12/4', entries: 0, total: '0.0h', billable: '0.0h billable' },
-  { w: 'Week 15/4 - 19/4', entries: 0, total: '0.0h', billable: '0.0h billable' },
-  { w: 'Week 22/4 - 26/4', entries: 0, total: '0.0h', billable: '0.0h billable' },
-  { w: 'Week 29/4 - 30/4', entries: 0, total: '0.0h', billable: '0.0h billable' },
-];
+const formatHours = (value: number) => `${value.toFixed(1)}h`;
 
 export function MonthlyView() {
+  const [monthIndex, setMonthIndex] = useState(1);
+  const [search, setSearch] = useState('');
+
+  const currentMonth = monthlyData[monthIndex];
+
+  const filteredProjects = useMemo(
+    () => currentMonth.projects.filter((project) => project.name.toLowerCase().includes(search.toLowerCase())),
+    [currentMonth.projects, search],
+  );
+
+  const totalHours = useMemo(() => currentMonth.projects.reduce((sum, project) => sum + project.total, 0), [currentMonth.projects]);
+  const billableHours = useMemo(
+    () => currentMonth.projects.reduce((sum, project) => sum + project.billable, 0),
+    [currentMonth.projects],
+  );
+  const entries = useMemo(() => currentMonth.weekly.reduce((sum, week) => sum + week.entries, 0), [currentMonth.weekly]);
+  const avgDay = totalHours / currentMonth.workingDays;
+  const utilization = Math.round((avgDay / 8) * 100);
+  const billableRate = totalHours > 0 ? Math.round((billableHours / totalHours) * 100) : 0;
+
+  const pieData = [
+    { name: 'Billable', value: Number(billableHours.toFixed(1)), fill: 'var(--color-brand-teal)' },
+    { name: 'Non-Billable', value: Number((totalHours - billableHours).toFixed(1)), fill: 'var(--color-brand-primary)' },
+  ];
+
   return (
-    <div className="max-w-[1400px] mx-auto space-y-6 pb-24">
-      
+    <div className="mx-auto max-w-[1400px] space-y-6 pb-24 font-sans animate-fade-in">
       <Reveal direction="down">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <h1 className="text-3xl font-bold tracking-tight text-white">Monthly View</h1>
+        <div className="mb-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-3xl font-black tracking-tight text-white">Monthly View</h1>
         </div>
       </Reveal>
 
-      {/* Navigator */}
       <Reveal delay={0.1}>
-        <div className="bg-[#1c1b1b] p-4 sm:p-6 rounded-2xl border border-white/5 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-             <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 bg-[#131313] hover:bg-white/5 text-white/60 transition-colors">
-               <ChevronLeft className="w-5 h-5"/>
-             </button>
-             <h2 className="text-xl font-bold text-white flex items-center gap-3 tracking-tight">
-               April 2026 
-               <span className="bg-[#bbf600]/20 text-[#bbf600] text-[10px] uppercase font-black px-2 py-0.5 rounded-lg border border-[#bbf600]/30">Current Month</span>
-             </h2>
-             <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 bg-[#131313] hover:bg-white/5 text-white/60 transition-colors">
-               <ChevronRight className="w-5 h-5"/>
-             </button>
+        <div className="flex flex-col items-start gap-4 rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-4 shadow-xl md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setMonthIndex((prev) => Math.max(0, prev - 1))}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-[var(--color-brand-bg)] text-white/70 transition-colors hover:bg-white/10 disabled:opacity-30"
+              disabled={monthIndex === 0}
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-white">
+              {currentMonth.label}
+              {monthIndex === 1 && (
+                <span className="rounded-full border border-[var(--color-brand-teal)]/35 bg-[var(--color-brand-teal)]/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--color-brand-teal)]">
+                  Current Month
+                </span>
+              )}
+            </h2>
+            <button
+              onClick={() => setMonthIndex((prev) => Math.min(monthlyData.length - 1, prev + 1))}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-[var(--color-brand-bg)] text-white/70 transition-colors hover:bg-white/10 disabled:opacity-30"
+              disabled={monthIndex === monthlyData.length - 1}
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
           </div>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Filter projects"
+            className="w-full rounded-xl border border-white/15 bg-[var(--color-brand-bg)] px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/35 focus:border-[var(--color-brand-primary)] md:w-[260px]"
+          />
         </div>
       </Reveal>
 
-      {/* KPI Stats */}
       <Reveal delay={0.2}>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-6">
-           <div className="bg-[#1c1b1b] p-5 rounded-2xl border border-white/5 shadow-lg flex flex-col justify-center">
-             <div className="flex items-center gap-2 text-[#9fa9ff] mb-2 font-bold text-[13px]">
-               <Clock className="w-4 h-4" /> Total Hours
-             </div>
-             <span className="text-3xl font-black text-[#9fa9ff] tracking-tight">473.6h</span>
-             <span className="text-white/30 text-[10px] font-medium mt-1">22.6h avg/day</span>
-           </div>
-           <div className="bg-[#1c1b1b] p-5 rounded-2xl border border-white/5 shadow-lg flex flex-col justify-center">
-             <div className="flex items-center gap-2 text-[#bbf600] mb-2 font-bold text-[13px]">
-               <CalendarIcon className="w-4 h-4" /> Billable Hours
-             </div>
-             <span className="text-3xl font-black text-[#bbf600] tracking-tight">381.6h</span>
-             <span className="text-white/30 text-[10px] font-medium mt-1">81% of total</span>
-           </div>
-           <div className="bg-[#1c1b1b] p-5 rounded-2xl border border-white/5 shadow-lg flex flex-col justify-center">
-             <div className="flex items-center gap-2 text-[#d4bbff] mb-2 font-bold text-[13px]">
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Entries
-             </div>
-             <span className="text-3xl font-black text-[#d4bbff] tracking-tight">179</span>
-             <span className="text-white/30 text-[10px] font-medium mt-1">21 working days</span>
-           </div>
-           <div className="bg-[#1c1b1b] p-5 rounded-2xl border border-white/5 shadow-lg flex flex-col justify-center">
-             <div className="flex items-center gap-2 text-[#eb7146] mb-2 font-bold text-[13px]">
-               Utilization
-             </div>
-             <span className="text-3xl font-black text-[#eb7146] tracking-tight">282%</span>
-             <span className="text-white/30 text-[10px] font-medium mt-1">Based on 8h/day</span>
-           </div>
+        <div className="mt-2 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-5 shadow-lg">
+            <div className="mb-2 flex items-center gap-2 text-[13px] font-bold text-[var(--color-brand-secondary)]">
+              <Clock className="h-4 w-4" /> Total Hours
+            </div>
+            <p className="text-4xl font-black tracking-tight text-white">{formatHours(totalHours)}</p>
+            <p className="mt-1 text-[11px] text-white/45">{avgDay.toFixed(1)}h avg/day</p>
+          </article>
+          <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-5 shadow-lg">
+            <div className="mb-2 flex items-center gap-2 text-[13px] font-bold text-[var(--color-brand-teal)]">
+              <CalendarIcon className="h-4 w-4" /> Billable Hours
+            </div>
+            <p className="text-4xl font-black tracking-tight text-[var(--color-brand-teal)]">{formatHours(billableHours)}</p>
+            <p className="mt-1 text-[11px] text-white/45">{billableRate}% of total</p>
+          </article>
+          <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-5 shadow-lg">
+            <div className="mb-2 flex items-center gap-2 text-[13px] font-bold text-[var(--color-brand-primary)]">
+              <TrendingUp className="h-4 w-4" /> Entries
+            </div>
+            <p className="text-4xl font-black tracking-tight text-[var(--color-brand-primary)]">{entries}</p>
+            <p className="mt-1 text-[11px] text-white/45">{currentMonth.workingDays} working days</p>
+          </article>
+          <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-5 shadow-lg">
+            <div className="mb-2 text-[13px] font-bold text-[var(--color-brand-secondary)]">Utilization</div>
+            <p className="text-4xl font-black tracking-tight text-[var(--color-brand-secondary)]">{utilization}%</p>
+            <p className="mt-1 text-[11px] text-white/45">Based on 8h/day</p>
+          </article>
         </div>
       </Reveal>
 
-      {/* Breakdowns */}
       <Reveal delay={0.3}>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          
-          {/* Project Breakdown */}
-          <div className="bg-[#1c1b1b] rounded-2xl border border-white/5 shadow-2xl p-6">
-            <h3 className="text-xl font-bold text-white mb-6">Project Breakdown</h3>
-            <div className="space-y-6">
-              {projectStats.map((p, i) => (
-                <div key={i}>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-[14px] font-bold text-white">{p.name}</span>
-                    <span className="text-[13px] text-white/50">{p.total} ({p.pct})</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-[#131313] rounded-full overflow-hidden mb-2 border border-white/5">
-                     <div className={`h-full ${p.isNeg ? 'bg-[#ffb4ab]' : 'bg-[#1b5df3]'} rounded-full`} style={{ width: p.w }}></div>
-                  </div>
-                  <div className="flex justify-between items-center text-[10px] text-white/40 uppercase tracking-widest font-bold">
-                     <span>Billable: {p.billable}</span>
-                     <span>Non-billable: {p.non}</span>
-                  </div>
-                </div>
-              ))}
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+          <section className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 shadow-2xl">
+            <h3 className="mb-4 text-3xl font-black tracking-tight text-white">Project Breakdown</h3>
+            <div className="mb-5 h-[190px] rounded-xl border border-white/10 bg-[var(--color-brand-bg)]/50 p-3">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={filteredProjects.slice(0, 6).map((project) => ({ name: project.name.split(' ')[0], total: project.total }))}>
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,.45)', fontSize: 11 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,.45)', fontSize: 11 }} />
+                  <Tooltip
+                    cursor={{ fill: 'rgba(255,255,255,.04)' }}
+                    contentStyle={{ backgroundColor: 'var(--color-brand-bg)', borderColor: 'rgba(255,255,255,.15)', borderRadius: 10, color: 'white' }}
+                  />
+                  <Bar dataKey="total" radius={[6, 6, 0, 0]} fill="var(--color-brand-primary)" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-          </div>
 
-          {/* Weekly Breakdown */}
-          <div className="bg-[#1c1b1b] rounded-2xl border border-white/5 shadow-2xl p-6">
-            <h3 className="text-xl font-bold text-white mb-6">Weekly Breakdown</h3>
+            <div className="max-h-[620px] space-y-5 overflow-y-auto pr-1">
+              {filteredProjects.map((project) => {
+                const share = totalHours > 0 ? Math.max(1, Math.round((project.total / totalHours) * 100)) : 0;
+                const nonBillable = Math.max(0, project.total - project.billable);
+                return (
+                  <article key={project.name}>
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-[15px] font-bold text-white">{project.name}</span>
+                      <span className="text-[13px] text-white/55">
+                        {formatHours(project.total)} ({share}%)
+                      </span>
+                    </div>
+                    <div className="mb-2 h-2 overflow-hidden rounded-full border border-white/10 bg-[var(--color-brand-bg)]">
+                      <div className="h-full rounded-full bg-[var(--color-brand-primary)]" style={{ width: `${share}%` }} />
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-white/45">
+                      <span>Billable: {formatHours(project.billable)}</span>
+                      <span>Non-billable: {formatHours(nonBillable)}</span>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 shadow-2xl">
+            <h3 className="mb-4 text-3xl font-black tracking-tight text-white">Weekly Breakdown</h3>
+            <div className="mb-4 h-[220px] rounded-xl border border-white/10 bg-[var(--color-brand-bg)]/50 p-3">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={pieData} dataKey="value" innerRadius={45} outerRadius={70} paddingAngle={5} stroke="none">
+                    {pieData.map((part) => (
+                      <Cell key={part.name} fill={part.fill} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ backgroundColor: 'var(--color-brand-bg)', borderColor: 'rgba(255,255,255,.15)', borderRadius: 10, color: 'white' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
             <div className="space-y-4">
-              {weeklyStats.map((w, i) => (
-                <div key={i} className="flex justify-between items-center p-4 rounded-xl border border-white/5 bg-[#131313] hover:bg-white/5 transition-colors">
+              {currentMonth.weekly.map((week) => (
+                <article
+                  key={week.label}
+                  className="flex items-center justify-between rounded-xl border border-white/10 bg-[var(--color-brand-bg)]/60 p-4 transition-colors hover:bg-white/5"
+                >
                   <div>
-                    <div className="text-[14px] font-bold text-white mb-1 tracking-tight">{w.w}</div>
-                    <div className="text-[11px] text-white/40">{w.entries} entries</div>
+                    <p className="text-[16px] font-bold tracking-tight text-white">{week.label}</p>
+                    <p className="text-[12px] text-white/45">{week.entries} entries</p>
                   </div>
                   <div className="text-right">
-                    <div className="text-[15px] font-bold text-[#bbf600]">{w.total}</div>
-                    <div className="text-[11px] text-[#bbf600] font-medium">{w.billable}</div>
+                    <p className="text-[20px] font-black text-[var(--color-brand-secondary)]">{formatHours(week.total)}</p>
+                    <p className="text-[12px] font-semibold text-[var(--color-brand-teal)]">{formatHours(week.billable)} billable</p>
                   </div>
-                </div>
+                </article>
               ))}
             </div>
-          </div>
-
+          </section>
         </div>
       </Reveal>
-
     </div>
   );
 }
