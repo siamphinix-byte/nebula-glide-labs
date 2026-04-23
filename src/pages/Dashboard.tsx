@@ -31,9 +31,32 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 const progressData = [
-  { name: 'Completed', value: 68, color: 'var(--color-brand-secondary)', patterned: false },
-  { name: 'In Progress', value: 15, color: 'var(--color-brand-teal)', patterned: false },
-  { name: 'Pending', value: 17, color: 'var(--color-brand-primary)', patterned: true },
+  {
+    name: 'Completed',
+    value: 68,
+    chartFill: 'var(--color-brand-secondary)',
+    dotClass: 'bg-[var(--color-brand-secondary)]',
+    barClass: 'bg-[var(--color-brand-secondary)]',
+    patterned: false,
+  },
+  {
+    name: 'In Progress',
+    value: 15,
+    chartFill: 'var(--color-brand-teal)',
+    dotClass: 'bg-[var(--color-brand-teal)]',
+    barClass: 'bg-[var(--color-brand-teal)]',
+    patterned: false,
+  },
+  {
+    name: 'Pending',
+    value: 17,
+    chartFill: 'url(#progressStripes)',
+    dotClass:
+      'bg-[repeating-linear-gradient(45deg,var(--color-brand-primary)_0px,var(--color-brand-primary)_3px,color-mix(in_srgb,var(--color-brand-primary)_35%,transparent)_3px,color-mix(in_srgb,var(--color-brand-primary)_35%,transparent)_6px)]',
+    barClass:
+      'bg-[repeating-linear-gradient(45deg,var(--color-brand-primary)_0px,var(--color-brand-primary)_6px,color-mix(in_srgb,var(--color-brand-primary)_35%,transparent)_6px,color-mix(in_srgb,var(--color-brand-primary)_35%,transparent)_12px)]',
+    patterned: true,
+  },
 ];
 
 const statCards = [
@@ -119,6 +142,8 @@ export function Dashboard() {
     () => (activeFilter === 'Alerts' ? timelineData.filter((item) => item.status !== 'completed') : timelineData),
     [activeFilter],
   );
+
+  const completionRate = progressData.find((item) => item.name === 'Completed')?.value ?? 0;
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-6 pb-24 h-full font-sans animate-fade-in">
@@ -281,7 +306,9 @@ export function Dashboard() {
           <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 md:p-8 shadow-xl">
             <header className="mb-8 flex items-center justify-between">
               <h2 className="text-[16px] font-bold text-white">Project Progress Topology</h2>
-              <button className="text-[12px] font-medium text-white/50 transition-colors hover:text-white">Detailed Report</button>
+              <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-white/65">
+                Detailed Report
+              </span>
             </header>
 
             <div className="flex flex-col gap-8 lg:flex-row">
@@ -310,22 +337,24 @@ export function Dashboard() {
                       onMouseLeave={() => setHoveredPie(null)}
                     >
                       {progressData.map((entry, index) => (
-                        <Cell
-                          key={entry.name}
-                          fill={entry.patterned ? 'url(#progressStripes)' : entry.color}
-                          opacity={hoveredPie === null || hoveredPie === index ? 1 : 0.35}
-                        />
+                        <Cell key={entry.name} fill={entry.chartFill} opacity={hoveredPie === null || hoveredPie === index ? 1 : 0.35} />
                       ))}
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute bottom-4 text-center">
-                  <p className="text-5xl font-black leading-none tracking-tighter text-white">68%</p>
+                  <p className="text-5xl font-black leading-none tracking-tighter text-white">{completionRate}%</p>
                   <p className="mt-2 text-[11px] font-bold uppercase tracking-[0.2em] text-white/35">Completion</p>
                 </div>
               </div>
 
               <div className="flex flex-1 flex-col justify-center gap-4 border-t border-white/10 pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+                <div className="rounded-xl border border-white/10 bg-[var(--color-brand-bg)]/60 p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-white/45">Detailed Report</p>
+                  <p className="mt-2 text-3xl font-black leading-none tracking-tight text-white">{completionRate}%</p>
+                  <p className="mt-1 text-[12px] font-semibold text-white/55">Completion</p>
+                </div>
+
                 {progressData.map((item, i) => (
                   <div
                     key={item.name}
@@ -333,15 +362,18 @@ export function Dashboard() {
                     onMouseEnter={() => setHoveredPie(i)}
                     onMouseLeave={() => setHoveredPie(null)}
                   >
-                    <div className="flex items-center gap-3">
-                      {item.patterned ? (
-                        <span className="h-3.5 w-3.5 rounded-full border border-white/20 bg-[repeating-linear-gradient(45deg,rgba(122,60,245,0.95)_0px,rgba(122,60,245,0.95)_3px,rgba(122,60,245,0.25)_3px,rgba(122,60,245,0.25)_6px)]" />
-                      ) : (
-                        <span className="h-3.5 w-3.5 rounded-full" style={{ background: item.color }} />
-                      )}
-                      <span className="text-[13px] font-bold text-white/85">{item.name}</span>
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <span className={`h-3.5 w-3.5 shrink-0 rounded-full border border-white/20 ${item.dotClass}`} />
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex items-center justify-between gap-3">
+                          <span className="text-[13px] font-bold text-white/85">{item.name}</span>
+                          <span className="text-[12px] font-semibold text-white/55">{item.value}%</span>
+                        </div>
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                          <div className={`h-full rounded-full transition-all duration-300 ${item.barClass}`} style={{ width: `${item.value}%` }} />
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-[12px] font-semibold text-white/55">{item.value}%</span>
                   </div>
                 ))}
               </div>
