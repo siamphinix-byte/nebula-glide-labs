@@ -1,200 +1,504 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Reveal, StaggerReveal } from '../components/GSAPWrapper';
-import { Plus, Search, Filter, List as ListIcon, Grid, Edit, Trash2, Calendar } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import {
+  Check,
+  Clock3,
+  Edit,
+  Filter,
+  Grid,
+  List,
+  Pause,
+  Play,
+  Plus,
+  Search,
+  Send,
+  TimerReset,
+  Trash2,
+  User,
+} from 'lucide-react';
+import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-const timesheets = [
-  { id: 1, weekOf: '3/8/2026', status: 'Submitted', user: 'WorkDo', totalHrs: '1.00h', billableHrs: '1.00h', period: '3/8/2026 - 3/9/2026', entries: 1 },
-  { id: 2, weekOf: '2/24/2026', status: 'Draft', user: 'WorkDo', totalHrs: '3.00h', billableHrs: '3.00h', period: '2/24/2026 - 3/6/2026', entries: 2 },
-  { id: 3, weekOf: '2/24/2026', status: 'Draft', user: 'WorkDo', totalHrs: '4.00h', billableHrs: '4.00h', period: '2/24/2026 - 2/27/2026', entries: 2 },
-  { id: 4, weekOf: '3/8/2026', status: 'Submitted', user: 'WorkDo', totalHrs: '4.00h', billableHrs: '4.00h', period: '3/8/2026 - 3/10/2026', entries: 2 },
-  { id: 5, weekOf: '2/24/2026', status: 'Draft', user: 'WorkDo', totalHrs: '1.00h', billableHrs: '1.00h', period: '2/24/2026 - 2/27/2026', entries: 1 },
-  { id: 6, weekOf: '2/28/2026', status: 'Draft', user: 'WorkDo', totalHrs: '2.00h', billableHrs: '2.00h', period: '2/28/2026 - 3/1/2026', entries: 2 },
-  { id: 7, weekOf: '3/15/2026', status: 'Draft', user: 'WorkDo', totalHrs: '2.00h', billableHrs: '2.00h', period: '3/15/2026 - 3/16/2026', entries: 1 },
-  { id: 8, weekOf: '3/13/2026', status: 'Draft', user: 'WorkDo', totalHrs: '3.00h', billableHrs: '3.00h', period: '3/13/2026 - 3/14/2026', entries: 1 },
-  { id: 9, weekOf: '2/26/2026', status: 'Draft', user: 'WorkDo', totalHrs: '2.00h', billableHrs: '2.00h', period: '2/26/2026 - 2/28/2026', entries: 3 },
+type TimesheetStatus = 'Draft' | 'Submitted' | 'Approved';
+
+type TimesheetRow = {
+  id: number;
+  weekOf: string;
+  status: TimesheetStatus;
+  user: string;
+  totalHrs: number;
+  billableHrs: number;
+  period: string;
+  entries: number;
+};
+
+const initialTimesheets: TimesheetRow[] = [
+  { id: 1, weekOf: '3/8/2026', status: 'Submitted', user: 'WorkDo', totalHrs: 1, billableHrs: 1, period: '3/8/2026 - 3/9/2026', entries: 1 },
+  { id: 2, weekOf: '2/24/2026', status: 'Draft', user: 'WorkDo', totalHrs: 3, billableHrs: 3, period: '2/24/2026 - 3/6/2026', entries: 2 },
+  { id: 3, weekOf: '2/24/2026', status: 'Draft', user: 'WorkDo', totalHrs: 4, billableHrs: 4, period: '2/24/2026 - 2/27/2026', entries: 2 },
+  { id: 4, weekOf: '3/8/2026', status: 'Submitted', user: 'WorkDo', totalHrs: 4, billableHrs: 4, period: '3/8/2026 - 3/10/2026', entries: 2 },
+  { id: 5, weekOf: '2/24/2026', status: 'Draft', user: 'WorkDo', totalHrs: 1, billableHrs: 1, period: '2/24/2026 - 2/27/2026', entries: 1 },
+  { id: 6, weekOf: '2/28/2026', status: 'Draft', user: 'WorkDo', totalHrs: 2, billableHrs: 2, period: '2/28/2026 - 3/1/2026', entries: 2 },
+  { id: 7, weekOf: '3/15/2026', status: 'Draft', user: 'WorkDo', totalHrs: 2, billableHrs: 2, period: '3/15/2026 - 3/16/2026', entries: 1 },
+  { id: 8, weekOf: '3/13/2026', status: 'Draft', user: 'WorkDo', totalHrs: 3, billableHrs: 3, period: '3/13/2026 - 3/14/2026', entries: 1 },
+  { id: 9, weekOf: '2/26/2026', status: 'Draft', user: 'WorkDo', totalHrs: 2, billableHrs: 2, period: '2/26/2026 - 2/28/2026', entries: 3 },
+  { id: 10, weekOf: '2/26/2026', status: 'Approved', user: 'WorkDo', totalHrs: 7.5, billableHrs: 7.5, period: '2/26/2026 - 2/28/2026', entries: 4 },
+  { id: 11, weekOf: '2/28/2026', status: 'Approved', user: 'WorkDo', totalHrs: 5.25, billableHrs: 5.25, period: '2/28/2026 - 3/1/2026', entries: 2 },
+  { id: 12, weekOf: '3/2/2026', status: 'Draft', user: 'WorkDo', totalHrs: 2.5, billableHrs: 2.5, period: '3/2/2026 - 3/2/2026', entries: 1 },
 ];
 
+const weeklyTrend = [
+  { week: 'W1', hours: 22 },
+  { week: 'W2', hours: 31 },
+  { week: 'W3', hours: 28 },
+  { week: 'W4', hours: 35 },
+  { week: 'W5', hours: 39 },
+  { week: 'W6', hours: 33 },
+];
+
+const projects = ['Website Redesign', 'Admin Portal', 'Mobile App', 'Landing Optimization'];
+const tasks = ['UI Build', 'Frontend Integration', 'Testing', 'Content Updates'];
+
+const statusFill: Record<TimesheetStatus, string> = {
+  Draft: 'var(--color-brand-primary)',
+  Submitted: 'var(--color-brand-secondary)',
+  Approved: 'var(--color-brand-teal)',
+};
+
+const statusPill: Record<TimesheetStatus, string> = {
+  Draft: 'border-white/15 bg-white/5 text-white/70',
+  Submitted: 'border-[var(--color-brand-secondary)]/20 bg-[var(--color-brand-secondary)]/10 text-[var(--color-brand-secondary)]',
+  Approved: 'border-[var(--color-brand-teal)]/20 bg-[var(--color-brand-teal)]/10 text-[var(--color-brand-teal)]',
+};
+
+const toHourText = (value: number) => `${value.toFixed(2)}h`;
+const toClock = (seconds: number) => {
+  const h = Math.floor(seconds / 3600)
+    .toString()
+    .padStart(2, '0');
+  const m = Math.floor((seconds % 3600) / 60)
+    .toString()
+    .padStart(2, '0');
+  const s = Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, '0');
+  return `${h}:${m}:${s}`;
+};
+
 export function Timesheets() {
+  const [timesheets, setTimesheets] = useState<TimesheetRow[]>(initialTimesheets);
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'All' | TimesheetStatus>('All');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [perPage, setPerPage] = useState(12);
+  const [page, setPage] = useState(1);
+
+  const [selectedProject, setSelectedProject] = useState('');
+  const [selectedTask, setSelectedTask] = useState('');
+  const [workNote, setWorkNote] = useState('');
+  const [elapsed, setElapsed] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
+
+  useEffect(() => {
+    if (!timerRunning) return;
+    const interval = window.setInterval(() => setElapsed((prev) => prev + 1), 1000);
+    return () => window.clearInterval(interval);
+  }, [timerRunning]);
+
+  const filtered = useMemo(() => {
+    return timesheets.filter((row) => {
+      const matchesStatus = statusFilter === 'All' || row.status === statusFilter;
+      const term = query.toLowerCase();
+      const matchesSearch =
+        row.weekOf.toLowerCase().includes(term) ||
+        row.user.toLowerCase().includes(term) ||
+        row.period.toLowerCase().includes(term) ||
+        row.status.toLowerCase().includes(term);
+      return matchesStatus && matchesSearch;
+    });
+  }, [query, statusFilter, timesheets]);
+
+  const paged = useMemo(() => {
+    const start = (page - 1) * perPage;
+    return filtered.slice(start, start + perPage);
+  }, [filtered, page, perPage]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, statusFilter, perPage]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const totalTimesheets = timesheets.length;
+  const draftCount = timesheets.filter((t) => t.status === 'Draft').length;
+  const submittedCount = timesheets.filter((t) => t.status === 'Submitted').length;
+  const approvedCount = timesheets.filter((t) => t.status === 'Approved').length;
+  const weekHours = timesheets.reduce((sum, t) => sum + t.totalHrs, 0);
+
+  const statusChartData = [
+    { name: 'Draft', value: draftCount, fill: statusFill.Draft },
+    { name: 'Submitted', value: submittedCount, fill: statusFill.Submitted },
+    { name: 'Approved', value: approvedCount, fill: statusFill.Approved },
+  ];
+
+  const canStart = selectedProject && selectedTask && workNote.trim().length > 0;
+
+  const handleStartStop = () => {
+    if (!timerRunning && !canStart) return;
+    setTimerRunning((prev) => !prev);
+  };
+
+  const handleSaveTimerAsDraft = () => {
+    if (elapsed === 0) return;
+    const newHours = Number((elapsed / 3600).toFixed(2));
+    setTimesheets((prev) => [
+      {
+        id: prev.length + 100,
+        weekOf: new Date().toLocaleDateString(),
+        status: 'Draft',
+        user: 'WorkDo',
+        totalHrs: newHours,
+        billableHrs: newHours,
+        period: `${new Date().toLocaleDateString()} - ${new Date().toLocaleDateString()}`,
+        entries: 1,
+      },
+      ...prev,
+    ]);
+    setTimerRunning(false);
+    setElapsed(0);
+    setWorkNote('');
+  };
+
+  const handleSubmit = (id: number) => {
+    setTimesheets((prev) => prev.map((row) => (row.id === id ? { ...row, status: 'Submitted' } : row)));
+  };
+
+  const handleDelete = (id: number) => {
+    setTimesheets((prev) => prev.filter((row) => row.id !== id));
+  };
+
   return (
-    <div className="max-w-[1400px] mx-auto space-y-6 pb-24">
-      {/* Header */}
+    <div className="mx-auto max-w-[1400px] space-y-6 pb-24 font-sans animate-fade-in">
       <Reveal direction="down">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <h1 className="text-3xl font-bold tracking-tight text-white">Timesheets</h1>
-          <button className="bg-[#bbf600] hover:bg-[#bbf600]/90 text-[#131313] px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(187,246,0,0.2)]">
-            <Plus className="w-4 h-4" /> New Timesheet
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight text-white">Timesheets</h1>
+            <p className="mt-1 text-sm text-white/55">Track work time, submit logs, and monitor utilization.</p>
+          </div>
+          <button
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--color-brand-secondary)]/35 bg-[var(--color-brand-secondary)] px-5 py-2.5 text-sm font-bold text-[var(--color-brand-bg)] transition-all hover:scale-[1.02] hover:bg-[var(--color-brand-secondary)]/90"
+            onClick={handleSaveTimerAsDraft}
+          >
+            <Plus className="h-4 w-4" /> Save Timer as Draft
           </button>
         </div>
       </Reveal>
 
-      {/* KPI Stats */}
+      <Reveal delay={0.05}>
+        <section className="grid grid-cols-2 gap-4 rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-4 shadow-xl lg:grid-cols-5">
+          {[{ label: 'Total Timesheets', value: totalTimesheets, color: 'text-[var(--color-brand-primary)]' },
+            { label: 'Draft', value: draftCount, color: 'text-white' },
+            { label: 'Submitted', value: submittedCount, color: 'text-[var(--color-brand-secondary)]' },
+            { label: 'Approved', value: approvedCount, color: 'text-[var(--color-brand-teal)]' },
+            { label: 'Total Hours', value: `${weekHours.toFixed(1)}h`, color: 'text-[var(--color-brand-primary)] col-span-2 lg:col-span-1' }].map((kpi) => (
+            <div key={kpi.label} className="rounded-xl border border-white/5 bg-black/10 p-4 text-center">
+              <p className={`text-3xl font-black tracking-tight ${kpi.color}`}>{kpi.value}</p>
+              <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-white/55">{kpi.label}</p>
+            </div>
+          ))}
+        </section>
+      </Reveal>
+
       <Reveal delay={0.1}>
-        <div className="bg-[#1c1b1b] rounded-2xl border border-white/5 p-4 grid grid-cols-2 lg:grid-cols-5 divide-y lg:divide-y-0 lg:divide-x divide-white/5 shadow-xl gap-4 lg:gap-0 mt-6">
-           <div className="p-2 sm:p-4 flex flex-col items-center justify-center text-center">
-             <span className="text-3xl font-bold text-[#9fa9ff]">74</span>
-             <span className="text-[12px] text-white/50 mt-1 font-medium">Total Timesheets</span>
-           </div>
-           <div className="p-2 sm:p-4 flex flex-col items-center justify-center text-center">
-             <span className="text-3xl font-bold text-white">63</span>
-             <span className="text-[12px] text-white/50 mt-1 font-medium">Draft</span>
-           </div>
-           <div className="p-2 sm:p-4 flex flex-col items-center justify-center text-center">
-             <span className="text-3xl font-bold text-[#ebd356]">9</span>
-             <span className="text-[12px] text-white/50 mt-1 font-medium">Submitted</span>
-           </div>
-           <div className="p-2 sm:p-4 flex flex-col items-center justify-center text-center">
-             <span className="text-3xl font-bold text-[#bbf600]">2</span>
-             <span className="text-[12px] text-white/50 mt-1 font-medium">Approved</span>
-           </div>
-           <div className="p-2 sm:p-4 flex flex-col items-center justify-center text-center col-span-2 lg:col-span-1">
-             <span className="text-3xl font-bold text-[#d4bbff]">0h</span>
-             <span className="text-[12px] text-white/50 mt-1 font-medium">This Week</span>
-           </div>
-        </div>
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.3fr_1fr]">
+          <div className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-5 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="flex items-center gap-2 text-lg font-bold text-white"><Clock3 className="h-5 w-5 text-[var(--color-brand-secondary)]" /> Timer</h2>
+              <span className="font-mono text-2xl font-bold tracking-[0.15em] text-white">{toClock(elapsed)}</span>
+            </div>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+              <div className="relative">
+                <select
+                  value={selectedProject}
+                  onChange={(e) => setSelectedProject(e.target.value)}
+                  className="w-full rounded-xl border border-white/15 bg-[var(--color-brand-bg)] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-[var(--color-brand-primary)]"
+                >
+                  <option value="">Select project *</option>
+                  {projects.map((project) => (
+                    <option key={project} value={project}>{project}</option>
+                  ))}
+                </select>
+                <ChevronIcon />
+              </div>
+              <div className="relative">
+                <select
+                  value={selectedTask}
+                  onChange={(e) => setSelectedTask(e.target.value)}
+                  className="w-full rounded-xl border border-white/15 bg-[var(--color-brand-bg)] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-[var(--color-brand-primary)]"
+                >
+                  <option value="">Select task *</option>
+                  {tasks.map((task) => (
+                    <option key={task} value={task}>{task}</option>
+                  ))}
+                </select>
+                <ChevronIcon />
+              </div>
+              <input
+                value={workNote}
+                onChange={(e) => setWorkNote(e.target.value)}
+                placeholder="What are you working on?"
+                className="rounded-xl border border-white/15 bg-[var(--color-brand-bg)] px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-white/35 focus:border-[var(--color-brand-primary)]"
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleStartStop}
+                  disabled={!timerRunning && !canStart}
+                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[var(--color-brand-teal)]/40 bg-[var(--color-brand-teal)]/20 px-4 py-3 text-sm font-bold text-[var(--color-brand-teal)] transition-all hover:scale-[1.02] hover:bg-[var(--color-brand-teal)]/30 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {timerRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />} {timerRunning ? 'Pause' : 'Start'}
+                </button>
+                <button
+                  onClick={() => {
+                    setTimerRunning(false);
+                    setElapsed(0);
+                  }}
+                  className="inline-flex h-[46px] w-[46px] items-center justify-center rounded-full border border-white/20 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                  title="Reset timer"
+                >
+                  <TimerReset className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-5 shadow-xl">
+            <header className="mb-3 flex items-center justify-between">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-white/75">Status Distribution</h3>
+              <span className="text-xs text-white/45">Detailed Report</span>
+            </header>
+            <div className="grid grid-cols-[130px_1fr] items-center gap-3">
+              <div className="h-[130px] w-[130px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={statusChartData} dataKey="value" innerRadius={38} outerRadius={58} paddingAngle={4} stroke="none">
+                      {statusChartData.map((entry) => (
+                        <Cell key={entry.name} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'var(--color-brand-bg)',
+                        borderColor: 'rgba(255,255,255,0.15)',
+                        borderRadius: '10px',
+                        color: 'white',
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="space-y-3">
+                {statusChartData.map((item) => (
+                  <div key={item.name} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs font-semibold text-white/75">
+                      <span>{item.name}</span>
+                      <span>{item.value}</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-white/10">
+                      <div className="h-1.5 rounded-full" style={{ width: `${Math.max(8, (item.value / totalTimesheets) * 100)}%`, backgroundColor: item.fill }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
       </Reveal>
 
-      {/* Timer Section */}
       <Reveal delay={0.2}>
-        <div className="bg-[#1c1b1b] p-6 rounded-2xl border border-white/5 shadow-xl">
-          <div className="flex justify-between items-center mb-4">
-             <div className="flex items-center gap-2 text-white font-bold tracking-tight">
-               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-               Timer
-             </div>
-             <span className="text-2xl font-mono font-bold text-white tracking-widest">00:00:00</span>
-          </div>
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-             <div className="relative flex-1 w-full">
-               <select className="w-full bg-[#131313] border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:border-[#bbf600] appearance-none cursor-pointer">
-                 <option>Select project *</option>
-               </select>
-               <ChevronIcon />
-             </div>
-             <div className="relative flex-1 w-full">
-               <select className="w-full bg-[#131313] border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:border-[#bbf600] appearance-none cursor-pointer">
-                 <option>Select task *</option>
-               </select>
-               <ChevronIcon />
-             </div>
-             <div className="flex-2 w-full">
-               <input type="text" placeholder="What are you working on?" className="w-full bg-[#131313] border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:border-[#bbf600] placeholder:text-white/30" />
-             </div>
-             <button className="bg-[#bbf600]/10 text-[#bbf600] hover:bg-[#bbf600] hover:text-[#131313] px-6 py-3 rounded-xl text-sm font-bold flex flex-shrink-0 items-center justify-center gap-2 transition-all w-full md:w-auto mt-2 md:mt-0">
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-               Start Timer
-             </button>
-          </div>
-        </div>
-      </Reveal>
+        <section className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-5 shadow-xl">
+          <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="relative w-full sm:w-[280px]">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search timesheets..."
+                  className="w-full rounded-xl border border-white/15 bg-[var(--color-brand-bg)] py-2.5 pl-10 pr-4 text-sm text-white outline-none transition-colors placeholder:text-white/35 focus:border-[var(--color-brand-primary)]"
+                />
+              </div>
+              <div className="relative">
+                <Filter className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/45" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as 'All' | TimesheetStatus)}
+                  className="appearance-none rounded-xl border border-white/15 bg-[var(--color-brand-bg)] py-2.5 pl-10 pr-10 text-sm text-white outline-none transition-colors focus:border-[var(--color-brand-primary)]"
+                >
+                  <option value="All">All Status</option>
+                  <option value="Draft">Draft</option>
+                  <option value="Submitted">Submitted</option>
+                  <option value="Approved">Approved</option>
+                </select>
+                <ChevronIcon small />
+              </div>
+            </div>
 
-      {/* Toolbar */}
-      <Reveal delay={0.3}>
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#1c1b1b] p-4 rounded-2xl border border-white/5">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto">
-             <div className="relative w-full sm:w-auto">
-               <Search className="w-4 h-4 absolute left-4 top-1/2 -mt-2 text-white/40" />
-               <input type="text" placeholder="Search timesheets..." className="pl-11 pr-4 py-2 w-full sm:w-[260px] bg-[#131313] border border-white/10 rounded-xl text-[14px] focus:outline-none focus:border-[#bbf600] text-white transition-colors" />
-             </div>
-             <button className="bg-[#bbf600] text-[#131313] px-4 py-2 w-full sm:w-auto justify-center rounded-xl text-[13px] font-bold flex items-center gap-2 hover:bg-[#bbf600]/90 transition-all">
-               <Search className="w-4 h-4"/> Search
-             </button>
-             <button className="bg-[#131313] border border-white/10 text-white/80 px-4 py-2 w-full sm:w-auto justify-center rounded-xl text-[13px] font-bold flex items-center gap-2 hover:bg-white/5 transition-all">
-               <Filter className="w-4 h-4"/> Filters
-             </button>
-          </div>
-          <div className="flex items-center justify-between lg:justify-end gap-4 w-full lg:w-auto mt-2 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-white/10">
-             <div className="flex bg-[#131313] border border-white/10 rounded-xl p-1">
-               <button className="p-1.5 w-8 h-8 flex justify-center items-center rounded-lg text-white/40 hover:text-white transition-colors"><ListIcon className="w-4 h-4" /></button>
-               <button className="p-1.5 w-8 h-8 flex justify-center items-center rounded-lg bg-[#bbf600] text-[#131313] shadow-sm"><Grid className="w-4 h-4" /></button>
-             </div>
-             <div className="flex items-center gap-2">
-                <span className="text-xs text-white/40 font-medium">Per Page:</span>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex rounded-xl border border-white/15 bg-[var(--color-brand-bg)] p-1">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`inline-flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+                    viewMode === 'list' ? 'bg-[var(--color-brand-primary)] text-white' : 'text-white/55 hover:text-white'
+                  }`}
+                  title="List view"
+                >
+                  <List className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`inline-flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+                    viewMode === 'grid' ? 'bg-[var(--color-brand-secondary)] text-[var(--color-brand-bg)]' : 'text-white/55 hover:text-white'
+                  }`}
+                  title="Grid view"
+                >
+                  <Grid className="h-4 w-4" />
+                </button>
+              </div>
+              <label className="flex items-center gap-2 text-xs font-semibold text-white/55">
+                Per Page:
                 <div className="relative">
-                  <select className="bg-[#131313] border border-white/10 rounded-xl pl-4 pr-8 py-1.5 text-sm font-medium text-white focus:outline-none focus:border-[#bbf600] appearance-none cursor-pointer">
-                    <option>12</option>
+                  <select
+                    value={perPage}
+                    onChange={(e) => setPerPage(Number(e.target.value))}
+                    className="appearance-none rounded-xl border border-white/15 bg-[var(--color-brand-bg)] py-1.5 pl-3 pr-8 text-sm text-white outline-none transition-colors focus:border-[var(--color-brand-primary)]"
+                  >
+                    <option value={6}>6</option>
+                    <option value={12}>12</option>
+                    <option value={18}>18</option>
                   </select>
                   <ChevronIcon small />
                 </div>
-             </div>
-          </div>
-        </div>
-      </Reveal>
-
-      {/* Grid */}
-      <Reveal delay={0.4}>
-        <StaggerReveal className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {timesheets.map((t) => (
-            <div key={t.id} className="bg-[#1c1b1b] border border-white/5 p-6 rounded-[1.5rem] flex flex-col hover:border-white/20 transition-all duration-300 group shadow-lg">
-              <div className="flex justify-between items-start mb-4 gap-2">
-                 <h3 className="font-bold text-white text-[15px] truncate tracking-tight">Week of {t.weekOf}</h3>
-                 <span className={`text-[10px] px-2.5 py-0.5 rounded-md font-bold tracking-wider uppercase border border-current ${t.status === 'Submitted' ? 'text-[#9fa9ff] bg-[#9fa9ff]/10' : 'text-white/60 bg-white/5 border-white/10 text-white/40'}`}>
-                   {t.status}
-                 </span>
-              </div>
-              
-              <div className="mb-4">
-                <div className="flex items-center gap-2 text-[12px] text-white/50 mb-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  {t.user}
-                </div>
-              </div>
-              
-              <div className="space-y-3 pb-5 flex-1">
-                 <div className="flex justify-between text-[13px] font-medium items-center">
-                   <div className="flex items-center gap-2 text-white/50"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Total Hours</div>
-                   <span className="text-white">{t.totalHrs}</span>
-                 </div>
-                 <div className="flex justify-between text-[13px] font-medium items-center text-[#bbf600]">
-                   <div className="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Billable Hours</div>
-                   <span>{t.billableHrs}</span>
-                 </div>
-                 <div className="flex justify-between text-[12px] text-white/40 pt-2 border-t border-white/5">
-                   <span>Period</span>
-                   <span>{t.period}</span>
-                 </div>
-                 <div className="flex justify-between text-[12px] text-white/40">
-                   <span>Entries</span>
-                   <span>{t.entries}</span>
-                 </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                 <div className="flex gap-3">
-                   <button className="text-[#ebd356] hover:text-[#ebd356]/80 transition-colors" title="Edit"><Edit className="w-4 h-4" /></button>
-                   <button className="text-[#ffb4ab] hover:text-[#ffb4ab]/80 transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>
-                 </div>
-                 {t.status === 'Draft' && (
-                   <button className="bg-[#bbf600] hover:bg-[#bbf600]/90 text-[#131313] px-3 py-1.5 rounded-lg text-[12px] font-bold shadow-md transition-all">
-                     Submit
-                   </button>
-                 )}
-              </div>
+              </label>
             </div>
-          ))}
-        </StaggerReveal>
-      </Reveal>
+          </div>
 
-      {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 bg-[#1c1b1b] p-4 rounded-2xl border border-white/5 text-[13px] text-white/50 shadow-lg">
-        <span className="font-medium">Showing 1 to 12 of 74 timesheets</span>
-        <div className="flex gap-2">
-          <button className="px-3 py-1.5 rounded-lg bg-[#131313] border border-white/10 hover:bg-white/5 transition-colors font-medium">Previous</button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#bbf600] text-[#131313] font-bold">1</button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#131313] border border-white/10 hover:bg-white/5 transition-colors font-medium text-white">2</button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#131313] border border-white/10 hover:bg-white/5 transition-colors font-medium">3</button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#131313] border border-white/10 hover:bg-white/5 transition-colors font-medium">4</button>
-          <span className="w-8 h-8 flex items-center justify-center font-medium">...</span>
-          <button className="px-3 py-1.5 rounded-lg bg-[#131313] border border-white/10 hover:bg-white/5 transition-colors text-white font-medium">Next</button>
-        </div>
-      </div>
-      
+          <div className="mb-4 h-[180px] rounded-xl border border-white/10 bg-[var(--color-brand-bg)]/50 p-3">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={weeklyTrend}>
+                <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.45)', fontSize: 12 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.45)', fontSize: 12 }} />
+                <Tooltip
+                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                  contentStyle={{
+                    backgroundColor: 'var(--color-brand-bg)',
+                    borderColor: 'rgba(255,255,255,0.15)',
+                    borderRadius: '10px',
+                    color: 'white',
+                  }}
+                />
+                <Bar dataKey="hours" fill="var(--color-brand-primary)" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <StaggerReveal className={viewMode === 'grid' ? 'grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3' : 'space-y-3'}>
+            {paged.map((t) => (
+              <article
+                key={t.id}
+                className={`group rounded-2xl border border-white/10 bg-[var(--color-brand-bg)]/55 p-5 transition-all duration-300 hover:border-white/20 ${
+                  viewMode === 'list' ? 'flex flex-col gap-3 md:flex-row md:items-center md:justify-between' : ''
+                }`}
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="mb-3 flex items-start justify-between gap-3">
+                    <h3 className="truncate text-xl font-bold tracking-tight text-white">Week of {t.weekOf}</h3>
+                    <span className={`rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider ${statusPill[t.status]}`}>{t.status}</span>
+                  </div>
+                  <p className="mb-3 flex items-center gap-2 text-sm text-white/50"><User className="h-4 w-4" /> {t.user}</p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between text-white/70"><span>Total Hours</span><span className="font-bold text-white">{toHourText(t.totalHrs)}</span></div>
+                    <div className="flex items-center justify-between"><span className="text-white/70">Billable Hours</span><span className="font-bold text-[var(--color-brand-teal)]">{toHourText(t.billableHrs)}</span></div>
+                    <div className="flex items-center justify-between text-white/55"><span>Period</span><span>{t.period}</span></div>
+                    <div className="flex items-center justify-between text-white/55"><span>Entries</span><span>{t.entries}</span></div>
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-4 md:mt-0 md:min-w-[180px] md:border-t-0 md:pt-0">
+                  <div className="flex items-center gap-2">
+                    <button className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[var(--color-brand-secondary)] transition-colors hover:bg-white/10" title="Edit">
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(t.id)}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[var(--color-brand-primary)] transition-colors hover:bg-white/10"
+                      title="Delete"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                  {t.status === 'Draft' ? (
+                    <button
+                      onClick={() => handleSubmit(t.id)}
+                      className="inline-flex items-center gap-2 rounded-full border border-[var(--color-brand-secondary)]/35 bg-[var(--color-brand-secondary)] px-3.5 py-1.5 text-xs font-bold text-[var(--color-brand-bg)] transition-all hover:scale-[1.02]"
+                    >
+                      <Send className="h-3.5 w-3.5" /> Submit
+                    </button>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-brand-teal)]/25 bg-[var(--color-brand-teal)]/10 px-3 py-1 text-xs font-bold text-[var(--color-brand-teal)]">
+                      <Check className="h-3.5 w-3.5" /> Active
+                    </span>
+                  )}
+                </div>
+              </article>
+            ))}
+          </StaggerReveal>
+
+          <div className="mt-5 flex flex-col items-start justify-between gap-4 rounded-xl border border-white/10 bg-[var(--color-brand-bg)]/50 px-4 py-3 text-sm text-white/55 sm:flex-row sm:items-center">
+            <span>
+              Showing {(page - 1) * perPage + (paged.length ? 1 : 0)} to {(page - 1) * perPage + paged.length} of {filtered.length} timesheets
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-white transition-colors hover:bg-white/10"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .slice(0, 5)
+                .map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setPage(n)}
+                    className={`h-8 w-8 rounded-lg border text-sm font-bold transition-colors ${
+                      page === n
+                        ? 'border-[var(--color-brand-secondary)] bg-[var(--color-brand-secondary)] text-[var(--color-brand-bg)]'
+                        : 'border-white/15 bg-white/5 text-white hover:bg-white/10'
+                    }`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-white transition-colors hover:bg-white/10"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </section>
+      </Reveal>
     </div>
   );
 }
 
 const ChevronIcon = ({ small }: { small?: boolean }) => (
-  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white/50">
-     <svg className={`fill-current ${small ? 'h-4 w-4' : 'h-5 w-5'}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white/45">
+    <svg className={`fill-current ${small ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+      <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+    </svg>
   </div>
 );
