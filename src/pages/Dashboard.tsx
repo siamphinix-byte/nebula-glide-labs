@@ -237,10 +237,7 @@ export function Dashboard() {
                                  cornerRadius={6}
                                  onMouseEnter={(_, index) => setHoveredPie(index)}
                                  onMouseLeave={() => setHoveredPie(null)}
-                                 style={(props: any) => ({
-                                   filter: hoveredPie === props.index ? 'url(#glow)' : 'none',
-                                   transition: 'all 0.3s ease'
-                                 })}
+                                 style={{ transition: 'all 0.3s ease' }}
                               >
                                  {progressData.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={entry.color} style={{ opacity: hoveredPie === null || hoveredPie === index ? 1 : 0.4 }} />
