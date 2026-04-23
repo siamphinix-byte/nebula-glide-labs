@@ -150,7 +150,6 @@ export default function App() {
         <Route path="/app/timesheets/daily" element={<DashboardLayout><DailyView /></DashboardLayout>} />
         <Route path="/app/timesheets/weekly" element={<DashboardLayout><WeeklyView /></DashboardLayout>} />
         <Route path="/app/timesheets/monthly" element={<DashboardLayout><MonthlyView /></DashboardLayout>} />
-        <Route path="/app/timesheets/calendar" element={<DashboardLayout><CalendarView /></DashboardLayout>} />
         <Route path="/app/timesheets/approvals" element={<DashboardLayout><Approvals /></DashboardLayout>} />
         <Route path="/app/timesheets/reports" element={<DashboardLayout><Reports /></DashboardLayout>} />
         
