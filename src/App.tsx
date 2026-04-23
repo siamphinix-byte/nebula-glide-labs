@@ -62,6 +62,7 @@ import { Signup } from './pages/Signup';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsCondition } from './pages/TermsCondition';
 import { Quote } from './pages/Quote';
+import NotFound from './pages/NotFound';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -171,6 +172,8 @@ export default function App() {
 
         <Route path="/app/clients" element={<DashboardLayout><Clients /></DashboardLayout>} />
         <Route path="/app/project-board" element={<DashboardLayout><ProjectBoard /></DashboardLayout>} />
+
+        <Route path="*" element={<PublicLayout><NotFound /></PublicLayout>} />
       </Routes>
     </>
   );
