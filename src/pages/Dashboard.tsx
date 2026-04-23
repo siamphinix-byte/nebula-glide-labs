@@ -280,7 +280,7 @@ export function Dashboard() {
 
             <div className="flex flex-col gap-8 lg:flex-row">
               <div className="relative mx-auto flex h-[220px] w-[220px] items-end justify-center">
-                <ResponsiveContainer width="100%" height="240" className="absolute bottom-[-14px]">
+                <ResponsiveContainer width="100%" height={240} className="absolute bottom-[-14px]">
                   <PieChart>
                     <defs>
                       <pattern id="progressStripes" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
