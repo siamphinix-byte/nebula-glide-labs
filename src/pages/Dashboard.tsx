@@ -26,13 +26,14 @@ import {
   Pie,
   PieChart,
   ResponsiveContainer,
+  Tooltip,
 } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 
 const progressData = [
-  { name: 'Completed', value: 68, color: 'var(--color-brand-secondary)' },
-  { name: 'In Progress', value: 15, color: 'var(--color-brand-teal)' },
-  { name: 'Pending', value: 17, color: 'url(#progressStripes)' },
+  { name: 'Completed', value: 68, color: 'var(--color-brand-secondary)', patterned: false },
+  { name: 'In Progress', value: 15, color: 'var(--color-brand-teal)', patterned: false },
+  { name: 'Pending', value: 17, color: 'var(--color-brand-primary)', patterned: true },
 ];
 
 const statCards = [
@@ -122,43 +123,28 @@ export function Dashboard() {
   return (
     <div className="max-w-[1400px] mx-auto space-y-6 pb-24 h-full font-sans animate-fade-in">
       <Reveal direction="down">
-        <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 md:p-8 shadow-2xl">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_25%,rgba(122,60,245,0.28),transparent_40%),radial-gradient(circle_at_85%_20%,rgba(28,219,186,0.2),transparent_42%),radial-gradient(circle_at_55%_100%,rgba(235,211,86,0.15),transparent_35%)]" />
-          <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-white/40">
-                <button onClick={() => navigate('/app/projects')} className="transition-colors hover:text-white">
-                  Projects
-                </button>
-                <ChevronRight className="h-3.5 w-3.5" />
-                <span className="text-[var(--color-brand-secondary)]">Brand Website Redesign</span>
-              </div>
-              <div className="space-y-3">
-                <h1 className="m-0 text-[clamp(2rem,4vw,3.2rem)] font-black tracking-tight text-white">Executive Project Command</h1>
-                <p className="max-w-2xl text-sm font-medium text-white/70 md:text-base">
-                  Real-time delivery intelligence, milestone velocity, and operational risk surfaced in one command layer.
-                </p>
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-brand-secondary)]/25 bg-[var(--color-brand-secondary)]/10 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-[var(--color-brand-secondary)]">
-                <span className="relative inline-flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-brand-secondary)] opacity-70" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-brand-secondary)]" />
-                </span>
-                Live Ops · In Progress
-              </div>
+        <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-5 md:p-6 shadow-2xl">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_10%,rgba(122,60,245,0.18),transparent_38%),radial-gradient(circle_at_100%_100%,rgba(28,219,186,0.12),transparent_40%)]" />
+          <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-white/55">
+              <span className="rounded-md border border-white/15 bg-white/5 px-2.5 py-1 text-white/70">Dashboard</span>
+              <ChevronRight className="h-3.5 w-3.5" />
+              <span className="rounded-md border border-[var(--color-brand-secondary)]/25 bg-[var(--color-brand-secondary)]/10 px-2.5 py-1 text-[var(--color-brand-secondary)]">
+                Operational View
+              </span>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={() => navigate('/app/projects')}
-                className="rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-[13px] font-bold text-white transition-all hover:bg-white/10"
+                className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-[13px] font-semibold text-white transition-all hover:bg-white/10"
               >
-                Open Settings
+                Open Projects
               </button>
               <button
                 onClick={() => navigate('/app/projects')}
-                className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-brand-secondary)] bg-[var(--color-brand-secondary)] px-5 py-2.5 text-[13px] font-bold text-[var(--color-brand-bg)] shadow-[0_0_30px_rgba(235,211,86,0.25)] transition-all hover:scale-[1.02]"
+                className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-brand-primary)]/45 bg-[var(--color-brand-primary)]/20 px-4 py-2 text-[13px] font-semibold text-white transition-all hover:bg-[var(--color-brand-primary)]/30"
               >
-                <Plus className="h-4 w-4" /> Add Task
+                <Plus className="h-4 w-4 text-[var(--color-brand-secondary)]" /> Add Task
               </button>
             </div>
           </div>
