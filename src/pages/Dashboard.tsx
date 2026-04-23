@@ -1,424 +1,474 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Reveal, StaggerReveal } from '../components/GSAPWrapper';
-import { 
-  ArrowUpRight, Plus, ChevronRight, CheckCircle2, Edit3, 
-  FileText, UserPlus, FileCheck, MoreHorizontal, Calendar,
-  Clock, DownloadCloud, DollarSign, Target, Activity
+import {
+  Activity,
+  ArrowUpRight,
+  Calendar,
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  DollarSign,
+  DownloadCloud,
+  FileCheck,
+  FileText,
+  MoreHorizontal,
+  Plus,
+  Target,
+  UserPlus,
+  Zap,
 } from 'lucide-react';
-import { 
-  PieChart, Pie, Cell, ResponsiveContainer, AreaChart, Area, 
-  BarChart, Bar, Tooltip as RechartsTooltip, CartesianGrid, XAxis 
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
 } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 
 const progressData = [
-  { name: 'Completed', value: 68, color: '#bbf600' },
-  { name: 'In Progress', value: 15, color: '#1e6047' },
-  { name: 'Pending', value: 17, color: 'url(#stripes)' }
+  { name: 'Completed', value: 68, color: 'var(--color-brand-secondary)' },
+  { name: 'In Progress', value: 15, color: 'var(--color-brand-teal)' },
+  { name: 'Pending', value: 17, color: 'url(#progressStripes)' },
+];
+
+const statCards = [
+  {
+    title: 'Hours Logged',
+    value: '240',
+    sub: '/350 target',
+    delta: '+12 hrs this week',
+    icon: Clock,
+    tone: 'secondary',
+    chart: 'hours',
+  },
+  {
+    title: 'Files Shared',
+    value: '42',
+    sub: 'assets synced',
+    delta: '9 updated today',
+    icon: DownloadCloud,
+    tone: 'primary',
+    chart: 'files',
+  },
+  {
+    title: 'Cost to Date',
+    value: '$45.2k',
+    sub: 'of $60k budget',
+    delta: '75% allocated',
+    icon: DollarSign,
+    tone: 'teal',
+    chart: 'cost',
+  },
 ];
 
 const teamData = [
-  { name: 'Sarah Jenkins', role: 'GitHub Project Repository', status: 'Completed', statusColor: 'bg-[#bbf600]/10 text-[#bbf600] border-[#bbf600]/20', initial: 'SJ', avatarBg: 'bg-[#bbf600]' },
-  { name: 'Marcus Chen', role: 'Develop Search & Filter', status: 'Pending', statusColor: 'bg-[#f1734f]/10 text-[#f1734f] border-[#f1734f]/20', initial: 'MC', avatarBg: 'bg-[#5b8cff]' },
-  { name: 'Alex Rivera', role: 'Database Architecture', status: 'In Progress', statusColor: 'bg-[#ebd356]/10 text-[#ebd356] border-[#ebd356]/20', initial: 'AR', avatarBg: 'bg-[#ebd356]' }
+  {
+    name: 'Sarah Jenkins',
+    role: 'GitHub Project Repository',
+    status: 'Completed',
+    initial: 'SJ',
+    avatarTone: 'bg-[var(--color-brand-secondary)]',
+    statusTone: 'bg-[var(--color-brand-secondary)]/10 text-[var(--color-brand-secondary)] border-[var(--color-brand-secondary)]/20',
+  },
+  {
+    name: 'Marcus Chen',
+    role: 'Develop Search & Filter',
+    status: 'Pending',
+    initial: 'MC',
+    avatarTone: 'bg-[var(--color-brand-primary)]',
+    statusTone: 'bg-[var(--color-brand-primary)]/10 text-[var(--color-brand-primary)] border-[var(--color-brand-primary)]/20',
+  },
+  {
+    name: 'Alex Rivera',
+    role: 'Database Architecture',
+    status: 'In Progress',
+    initial: 'AR',
+    avatarTone: 'bg-[var(--color-brand-teal)]',
+    statusTone: 'bg-[var(--color-brand-teal)]/10 text-[var(--color-brand-teal)] border-[var(--color-brand-teal)]/20',
+  },
 ];
 
 const timelineData = [
-  { title: 'Staging Env Updated', date: 'Due date: Nov 24, 2026', icon: <FileCheck className="w-4 h-4 text-[#bbf600]" />, type: 'Updated', status: 'completed' },
-  { title: 'Design Review Added', date: 'Due date: Nov 28, 2026', icon: <Edit3 className="w-4 h-4 text-white" />, type: 'Added', status: 'pending' },
-  { title: 'Invoice #1042 Paid', date: 'Due date: Dec 5, 2026', icon: <FileText className="w-4 h-4 text-[#bbf600]" />, type: 'Paid', status: 'completed' }
+  { title: 'Staging Env Updated', date: 'Nov 24, 2026', icon: FileCheck, type: 'Updated', status: 'completed' },
+  { title: 'Design Review Added', date: 'Nov 28, 2026', icon: Activity, type: 'Added', status: 'pending' },
+  { title: 'Invoice #1042 Paid', date: 'Dec 5, 2026', icon: FileText, type: 'Paid', status: 'completed' },
+  { title: 'QA Automation Triggered', date: 'Dec 8, 2026', icon: Zap, type: 'Triggered', status: 'pending' },
 ];
 
-const miniHoursData = [ {v:10}, {v:25}, {v:15}, {v:30}, {v:28}, {v:45}, {v:55} ];
-const miniCostData = [ {v:400}, {v:300}, {v:600}, {v:800}, {v:500}, {v:900}, {v:1000} ];
+const actionItems = [
+  { title: 'Invoice #1042 Review', sub: 'Finance Department', time: '10:30 PM', icon: DollarSign, alert: true },
+  { title: 'Approve PR #104', sub: 'GitHub Project Repository', time: '12:00 PM', icon: UserPlus, alert: false },
+  { title: 'Design Handoff Sign-off', sub: 'Product Team', time: '02:30 PM', icon: CheckCircle2, alert: false },
+];
+
+const miniHoursData = [{ v: 10 }, { v: 25 }, { v: 15 }, { v: 30 }, { v: 28 }, { v: 45 }, { v: 55 }];
+const miniCostData = [{ v: 400 }, { v: 300 }, { v: 600 }, { v: 800 }, { v: 500 }, { v: 900 }, { v: 1000 }];
+const velocityData = [{ v: 30 }, { v: 40 }, { v: 38 }, { v: 52 }, { v: 56 }, { v: 64 }, { v: 70 }];
 
 export function Dashboard() {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('All');
   const [hoveredPie, setHoveredPie] = useState<number | null>(null);
 
-  return (
-    <div className="max-w-[1400px] mx-auto space-y-6 pb-24 h-full font-sans">
-      
-      {/* Header Area */}
-      <Reveal direction="down">
-        <div className="mb-8 bg-[#1c1b1b] border border-white/5 rounded-2xl p-6 shadow-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
-           <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-[#bbf600]/5 to-transparent pointer-events-none"></div>
-           
-           <div className="relative z-10">
-               <div className="flex items-center gap-2 text-[12px] font-bold text-white/40 mb-2 uppercase tracking-widest">
-                  <button onClick={() => navigate('/app/projects')} className="hover:text-white transition-colors">Projects</button>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                  <span className="text-[#bbf600]">Brand Website Redesign</span>
-               </div>
-               
-               <div className="flex flex-wrap items-center gap-4">
-                  <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white m-0 flex items-center gap-3">
-                     Brand Website Redesign
-                  </h1>
-                  <span className="bg-[#bbf600]/10 border border-[#bbf600]/20 text-[#bbf600] font-bold text-[11px] px-3 py-1.5 rounded-full tracking-wider uppercase flex items-center gap-1.5 shadow-[0_0_15px_rgba(187, 246, 0,0.15)]">
-                     <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#bbf600] opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#bbf600]"></span>
-                     </span>
-                     In Progress
-                  </span>
-               </div>
-           </div>
+  const filteredTimeline = useMemo(
+    () => (activeFilter === 'Alerts' ? timelineData.filter((item) => item.status !== 'completed') : timelineData),
+    [activeFilter],
+  );
 
-           <div className="flex items-center gap-3 relative z-10">
-              <button 
+  return (
+    <div className="max-w-[1400px] mx-auto space-y-6 pb-24 h-full font-sans animate-fade-in">
+      <Reveal direction="down">
+        <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 md:p-8 shadow-2xl">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_25%,rgba(122,60,245,0.28),transparent_40%),radial-gradient(circle_at_85%_20%,rgba(28,219,186,0.2),transparent_42%),radial-gradient(circle_at_55%_100%,rgba(235,211,86,0.15),transparent_35%)]" />
+          <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-white/40">
+                <button onClick={() => navigate('/app/projects')} className="transition-colors hover:text-white">
+                  Projects
+                </button>
+                <ChevronRight className="h-3.5 w-3.5" />
+                <span className="text-[var(--color-brand-secondary)]">Brand Website Redesign</span>
+              </div>
+              <div className="space-y-3">
+                <h1 className="m-0 text-[clamp(2rem,4vw,3.2rem)] font-black tracking-tight text-white">Executive Project Command</h1>
+                <p className="max-w-2xl text-sm font-medium text-white/70 md:text-base">
+                  Real-time delivery intelligence, milestone velocity, and operational risk surfaced in one command layer.
+                </p>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-brand-secondary)]/25 bg-[var(--color-brand-secondary)]/10 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-[var(--color-brand-secondary)]">
+                <span className="relative inline-flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-brand-secondary)] opacity-70" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-brand-secondary)]" />
+                </span>
+                Live Ops · In Progress
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
                 onClick={() => navigate('/app/projects')}
-                className="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-4 py-2.5 rounded-xl font-bold text-[13px] transition-all flex items-center gap-2"
+                className="rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-[13px] font-bold text-white transition-all hover:bg-white/10"
               >
-                Settings
+                Open Settings
               </button>
-              <button 
+              <button
                 onClick={() => navigate('/app/projects')}
-                className="bg-[#bbf600] hover:bg-[#bbf600]/90 text-[#131313] px-5 py-2.5 rounded-xl font-bold text-[13px] transition-all shadow-[0_0_20px_rgba(187, 246, 0,0.3)] hover:shadow-[0_0_25px_rgba(187, 246, 0,0.4)] flex items-center gap-2"
+                className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-brand-secondary)] bg-[var(--color-brand-secondary)] px-5 py-2.5 text-[13px] font-bold text-[var(--color-brand-bg)] shadow-[0_0_30px_rgba(235,211,86,0.25)] transition-all hover:scale-[1.02]"
               >
-                <Plus className="w-4 h-4" /> Add Task
+                <Plus className="h-4 w-4" /> Add Task
               </button>
-           </div>
-        </div>
+            </div>
+          </div>
+        </section>
       </Reveal>
 
-      {/* Row 1: Premium Stat Cards */}
-      <StaggerReveal className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-         
-         {/* Hours Logged */}
-         <div className="bg-gradient-to-br from-[#1c1b1b] to-[#131313] rounded-2xl border border-white/5 p-6 shadow-xl hover:border-white/10 transition-all duration-300 group flex flex-col justify-between relative overflow-hidden">
-            <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#bbf600]/10 rounded-full blur-2xl group-hover:bg-[#bbf600]/20 transition-all"></div>
-            <div className="flex justify-between items-start mb-6 relative z-10">
-               <div className="flex items-center gap-2 text-white/50">
-                  <Clock className="w-4 h-4 group-hover:text-[#bbf600] transition-colors" />
-                  <span className="text-[13px] font-bold uppercase tracking-wider">Hours Logged</span>
-               </div>
-               <button className="w-7 h-7 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-white/50 hover:bg-[#bbf600] hover:text-[#131313] hover:border-[#bbf600] transition-colors">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-               </button>
-            </div>
-            <div className="relative z-10 grid grid-cols-2 gap-4 items-end">
-               <div>
-                  <div className="text-4xl font-black text-white tracking-tighter mb-1 relative">
-                    240<span className="text-[18px] text-white/30 font-bold ml-1">/350</span>
-                  </div>
-                  <div className="text-[11px] font-bold text-[#bbf600]">+12 hrs this week</div>
-               </div>
-               <div className="h-12 w-full">
+      <StaggerReveal className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {statCards.map((card) => {
+          const Icon = card.icon;
+          const toneClass =
+            card.tone === 'secondary'
+              ? 'text-[var(--color-brand-secondary)]'
+              : card.tone === 'teal'
+                ? 'text-[var(--color-brand-teal)]'
+                : 'text-[var(--color-brand-primary)]';
+
+          return (
+            <article
+              key={card.title}
+              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20"
+            >
+              <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/5 blur-2xl transition-all duration-300 group-hover:bg-white/10" />
+              <div className="relative z-10 mb-6 flex items-start justify-between">
+                <div className="flex items-center gap-2 text-white/55">
+                  <Icon className={`h-4 w-4 ${toneClass}`} />
+                  <span className="text-[13px] font-bold uppercase tracking-wider">{card.title}</span>
+                </div>
+                <button className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 transition-colors hover:bg-white/15 hover:text-white">
+                  <ArrowUpRight className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="relative z-10 space-y-1">
+                <div className="text-4xl font-black tracking-tighter text-white">
+                  {card.value} <span className="text-base font-bold text-white/35">{card.sub}</span>
+                </div>
+                <p className={`text-[11px] font-bold ${toneClass}`}>{card.delta}</p>
+              </div>
+
+              {card.chart === 'hours' && (
+                <div className="relative z-10 mt-5 h-12 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                     <AreaChart data={miniHoursData}>
-                        <defs>
-                           <linearGradient id="colorHours" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#bbf600" stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor="#bbf600" stopOpacity={0}/>
-                           </linearGradient>
-                        </defs>
-                        <Area type="monotone" dataKey="v" stroke="#bbf600" strokeWidth={2} fillOpacity={1} fill="url(#colorHours)" />
-                     </AreaChart>
+                    <AreaChart data={miniHoursData}>
+                      <defs>
+                        <linearGradient id="hoursGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="var(--color-brand-secondary)" stopOpacity={0.45} />
+                          <stop offset="100%" stopColor="var(--color-brand-secondary)" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <Area dataKey="v" stroke="var(--color-brand-secondary)" strokeWidth={2} fill="url(#hoursGradient)" />
+                    </AreaChart>
                   </ResponsiveContainer>
-               </div>
-            </div>
-         </div>
+                </div>
+              )}
 
-         {/* Files Shared */}
-         <div className="bg-gradient-to-br from-[#1c1b1b] to-[#131313] rounded-2xl border border-white/5 p-6 shadow-xl hover:border-white/10 transition-all duration-300 group flex flex-col justify-between relative overflow-hidden">
-            <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#5b8cff]/10 rounded-full blur-2xl group-hover:bg-[#5b8cff]/20 transition-all"></div>
-            <div className="flex justify-between items-start mb-6 relative z-10">
-               <div className="flex items-center gap-2 text-white/50">
-                  <DownloadCloud className="w-4 h-4 group-hover:text-[#5b8cff] transition-colors" />
-                  <span className="text-[13px] font-bold uppercase tracking-wider">Files Shared</span>
-               </div>
-               <button className="w-7 h-7 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-white/50 hover:bg-[#5b8cff] hover:text-white hover:border-[#5b8cff] transition-colors">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-               </button>
-            </div>
-            <div className="relative z-10 flex justify-between items-end">
-               <div className="text-4xl font-black text-white tracking-tighter mb-1">
-                 42
-               </div>
-               <div className="flex -space-x-2">
-                  <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/5 flex items-center justify-center text-[10px] font-bold text-white shadow-xl rotate-[-5deg]">PNG</div>
-                  <div className="w-8 h-8 rounded-lg bg-[#5b8cff]/20 border border-[#5b8cff]/20 flex items-center justify-center text-[10px] font-bold text-[#5b8cff] shadow-xl z-10">PDF</div>
-                  <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/5 flex items-center justify-center text-[10px] font-bold text-white shadow-xl rotate-[5deg] z-20">FIG</div>
-               </div>
-            </div>
-         </div>
-
-         {/* Cost to Date */}
-         <div className="bg-gradient-to-br from-[#1c1b1b] to-[#131313] rounded-2xl border border-white/5 p-6 shadow-xl hover:border-white/10 transition-all duration-300 group flex flex-col justify-between relative overflow-hidden">
-            <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#ebd356]/10 rounded-full blur-2xl group-hover:bg-[#ebd356]/20 transition-all"></div>
-            <div className="flex justify-between items-start mb-6 relative z-10">
-               <div className="flex items-center gap-2 text-white/50">
-                  <DollarSign className="w-4 h-4 group-hover:text-[#ebd356] transition-colors" />
-                  <span className="text-[13px] font-bold uppercase tracking-wider">Cost to Date</span>
-               </div>
-               <button className="w-7 h-7 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-white/50 hover:bg-[#ebd356] hover:text-[#131313] hover:border-[#ebd356] transition-colors">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-               </button>
-            </div>
-            <div className="relative z-10 grid grid-cols-2 gap-4 items-end">
-               <div>
-                  <div className="text-4xl font-black text-white tracking-tighter mb-1">
-                    $45.2<span className="text-[18px] text-white/30 font-bold">k</span>
-                  </div>
-                  <div className="text-[11px] font-bold text-white/40">From $60k budget</div>
-               </div>
-               <div className="h-10 w-full opacity-80 group-hover:opacity-100 transition-opacity">
+              {card.chart === 'cost' && (
+                <div className="relative z-10 mt-5 h-12 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                     <BarChart data={miniCostData}>
-                        <Bar dataKey="v" fill="#ebd356" radius={[2, 2, 0, 0]} />
-                     </BarChart>
+                    <BarChart data={miniCostData}>
+                      <Bar dataKey="v" fill="var(--color-brand-teal)" radius={[2, 2, 0, 0]} />
+                    </BarChart>
                   </ResponsiveContainer>
-               </div>
-            </div>
-         </div>
+                </div>
+              )}
 
-         {/* Next Milestone */}
-         <div className="bg-[#bbf600] rounded-2xl border border-[#bbf600] p-6 shadow-[0_0_30px_rgba(187, 246, 0,0.15)] group flex flex-col justify-between relative overflow-hidden cursor-pointer">
-            <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-white/10 to-transparent pointer-events-none"></div>
-            <div className="flex justify-between items-start mb-6 relative z-10">
-               <div className="flex items-center gap-2 text-[#131313]/60">
-                  <Target className="w-4 h-4" />
-                  <span className="text-[13px] font-bold uppercase tracking-wider">Next Milestone</span>
-               </div>
-               <div className="w-7 h-7 rounded-full bg-[#131313]/10 flex items-center justify-center text-[#131313]/70 group-hover:bg-[#131313] group-hover:text-white transition-colors">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-               </div>
-            </div>
-            <div className="relative z-10">
-               <div className="text-[28px] font-black text-[#131313] tracking-tight leading-none mb-2 hover:underline decoration-2 underline-offset-4">
-                 Beta Release
-               </div>
-               <div className="flex items-center gap-2 text-[12px] font-bold text-[#131313]/70 pt-1">
-                 <Calendar className="w-3.5 h-3.5" /> Oct 24, 2026
-               </div>
-            </div>
-         </div>
+              {card.chart === 'files' && (
+                <div className="relative z-10 mt-5 flex items-center justify-end gap-2">
+                  {['PNG', 'PDF', 'FIG'].map((type) => (
+                    <div
+                      key={type}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/10 text-[10px] font-bold text-white"
+                    >
+                      {type}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </article>
+          );
+        })}
 
+        <article className="group relative overflow-hidden rounded-2xl border border-[var(--color-brand-primary)]/30 bg-[var(--color-brand-primary)]/20 p-6 shadow-xl">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[var(--color-brand-primary)]/30 via-transparent to-[var(--color-brand-teal)]/10" />
+          <div className="relative z-10 mb-6 flex items-start justify-between">
+            <div className="flex items-center gap-2 text-white/80">
+              <Target className="h-4 w-4 text-[var(--color-brand-secondary)]" />
+              <span className="text-[13px] font-bold uppercase tracking-wider">Next Milestone</span>
+            </div>
+            <button className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white hover:text-[var(--color-brand-bg)]">
+              <ArrowUpRight className="h-4 w-4" />
+            </button>
+          </div>
+          <p className="text-[30px] font-black leading-none tracking-tight text-white">Beta Release</p>
+          <p className="mt-3 flex items-center gap-2 text-[12px] font-bold text-white/75">
+            <Calendar className="h-3.5 w-3.5" /> Oct 24, 2026
+          </p>
+          <div className="mt-5 h-12 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={velocityData}>
+                <defs>
+                  <linearGradient id="velocityGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--color-brand-primary)" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="var(--color-brand-primary)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <Area dataKey="v" stroke="var(--color-brand-primary)" strokeWidth={2} fill="url(#velocityGradient)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </article>
       </StaggerReveal>
 
-      {/* Row 2: Deep Analytics & Team Control */}
       <Reveal delay={0.2}>
-         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto lg:h-[320px]">
-            
-            {/* Advanced Progress Analytics */}
-            <div className="bg-[#1c1b1b] rounded-2xl border border-white/5 p-6 md:p-8 flex flex-col shadow-xl relative overflow-hidden group">
-               <h3 className="font-bold text-[16px] text-white flex items-center justify-between mb-8">
-                  <span>Project Progress Topology</span>
-                  <button className="text-[12px] text-white/40 hover:text-white transition-colors font-medium cursor-pointer">Detailed Report</button>
-               </h3>
-               
-               <div className="flex-1 flex flex-col lg:flex-row items-center justify-between gap-8 h-full">
-                  <div className="w-full lg:w-1/2 flex flex-col justify-center h-full relative group-hover:scale-105 transition-transform duration-500">
-                     <div className="relative h-[200px] w-[200px] mx-auto flex items-end justify-center">
-                        <ResponsiveContainer width="100%" height={240} className="absolute bottom-[-20px]">
-                           <PieChart>
-                              <defs>
-                                <pattern id="stripes" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
-                                  <rect width="8" height="8" fill="#131313" />
-                                  <line x1="0" y1="0" x2="0" y2="8" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.15" />
-                                </pattern>
-                                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                                  <feDropShadow dx="0" dy="0" stdDeviation="5" floodColor="#bbf600" floodOpacity="0.5" />
-                                </filter>
-                              </defs>
-                              <Pie
-                                 data={progressData}
-                                 cx="50%"
-                                 cy="100%"
-                                 startAngle={180}
-                                 endAngle={0}
-                                 innerRadius="75%"
-                                 outerRadius="100%"
-                                 paddingAngle={3}
-                                 dataKey="value"
-                                 stroke="none"
-                                 cornerRadius={6}
-                                 onMouseEnter={(_, index) => setHoveredPie(index)}
-                                 onMouseLeave={() => setHoveredPie(null)}
-                                 style={{ transition: 'all 0.3s ease' }}
-                              >
-                                 {progressData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} style={{ opacity: hoveredPie === null || hoveredPie === index ? 1 : 0.4 }} />
-                                 ))}
-                              </Pie>
-                           </PieChart>
-                        </ResponsiveContainer>
-                        <div className="absolute bottom-3 text-center w-full flex flex-col items-center">
-                           <span className="text-5xl font-black text-white leading-none tracking-tighter">68%</span>
-                           <span className="text-[11px] font-bold tracking-widest uppercase text-white/30 mt-2">Completion</span>
-                        </div>
-                     </div>
-                  </div>
-                  
-                  <div className="w-full lg:w-1/2 flex flex-col justify-center gap-4 border-t lg:border-t-0 lg:border-l border-white/5 pt-6 lg:pt-0 lg:pl-8">
-                     {[
-                       { label: 'Completed', val: '68%', color: '#bbf600' },
-                       { label: 'In Progress', val: '15%', color: '#1e6047' },
-                       { label: 'Pending Block', val: '17%', color: 'url(#stripes)', pattern: true }
-                     ].map((item, i) => (
-                       <div 
-                         key={i} 
-                         className="flex items-center justify-between p-3 rounded-xl border border-transparent hover:border-white/10 hover:bg-white/5 transition-all cursor-pointer"
-                         onMouseEnter={() => setHoveredPie(i)}
-                         onMouseLeave={() => setHoveredPie(null)}
-                       >
-                          <div className="flex items-center gap-3">
-                             {item.pattern ? (
-                                <div className="w-3.5 h-3.5 rounded-md overflow-hidden relative" style={{ background: item.color }}>
-                                   <div className="absolute inset-0 bg-[#131313] opacity-30"></div>
-                                   <svg width="100%" height="100%"><rect width="100%" height="100%" fill={item.color}/></svg>
-                                </div>
-                             ) : (
-                                <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: item.color, boxShadow: `0 0 10px ${item.color}`}}></div>
-                             )}
-                             <span className="text-[13px] font-bold text-white/80">{item.label}</span>
-                          </div>
-                          <span className="font-mono text-[12px] font-bold text-white/50">{item.val}</span>
-                       </div>
-                     ))}
-                  </div>
-               </div>
-            </div>
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_1fr]">
+          <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 md:p-8 shadow-xl">
+            <header className="mb-8 flex items-center justify-between">
+              <h2 className="text-[16px] font-bold text-white">Project Progress Topology</h2>
+              <button className="text-[12px] font-medium text-white/50 transition-colors hover:text-white">Detailed Report</button>
+            </header>
 
-            {/* Team Collaboration Command Center */}
-            <div className="bg-[#1c1b1b] rounded-2xl border border-white/5 p-6 md:p-8 flex flex-col h-full shadow-xl relative">
-               <div className="absolute top-0 left-0 w-full h-[60px] bg-gradient-to-b from-[#bbf600]/5 to-transparent rounded-t-2xl pointer-events-none"></div>
-               
-               <div className="flex items-center justify-between mb-6 relative z-10">
-                  <div>
-                    <h3 className="font-bold text-[16px] text-white">Team Operations</h3>
-                    <p className="text-[12px] text-white/40 mt-1">Cross-functional task distribution</p>
-                  </div>
-                  <button className="bg-[#131313] border border-white/10 text-white hover:bg-white/10 px-4 py-2 rounded-xl text-[12px] font-bold flex items-center gap-2 transition-all shadow-sm">
-                     <Plus className="w-3.5 h-3.5 text-[#bbf600]" /> Add Member
-                  </button>
-               </div>
-               
-               <div className="flex-1 flex flex-col justify-start gap-3 overflow-y-auto pr-2 custom-scrollbar">
-                  {teamData.map((member, i) => (
-                     <div key={i} className="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all group">
-                        <div className="flex items-center gap-3.5">
-                           <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-[13px] shadow-lg ${member.avatarBg} relative`}>
-                              {member.initial}
-                              {member.status === 'Completed' && <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#1c1b1b] rounded-full flex items-center justify-center"><div className="w-2.5 h-2.5 rounded-full bg-[#bbf600]"></div></div>}
-                           </div>
-                           <div className="flex flex-col">
-                              <span className="font-bold text-[13px] text-white/90 group-hover:text-white transition-colors">{member.name}</span>
-                              <span className="text-[11px] font-medium text-white/40 group-hover:text-white/60 transition-colors line-clamp-1">{member.role}</span>
-                           </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                           <span className={`px-2.5 py-1 rounded-md border text-[10px] font-bold uppercase tracking-wider ${member.statusColor}`}>
-                              {member.status}
-                           </span>
-                           <button className="w-8 h-8 rounded-lg bg-[#131313] border border-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white transition-colors opacity-0 group-hover:opacity-100 hidden sm:flex">
-                             <MoreHorizontal className="w-4 h-4" />
-                           </button>
-                        </div>
-                     </div>
-                  ))}
-               </div>
-            </div>
+            <div className="flex flex-col gap-8 lg:flex-row">
+              <div className="relative mx-auto flex h-[220px] w-[220px] items-end justify-center">
+                <ResponsiveContainer width="100%" height={240} className="absolute bottom-[-14px]">
+                  <PieChart>
+                    <defs>
+                      <pattern id="progressStripes" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+                        <rect width="8" height="8" fill="var(--color-brand-bg)" />
+                        <line x1="0" y1="0" x2="0" y2="8" stroke="white" strokeWidth="1" strokeOpacity="0.25" />
+                      </pattern>
+                    </defs>
+                    <Pie
+                      data={progressData}
+                      cx="50%"
+                      cy="100%"
+                      startAngle={180}
+                      endAngle={0}
+                      innerRadius="74%"
+                      outerRadius="100%"
+                      paddingAngle={3}
+                      dataKey="value"
+                      stroke="none"
+                      cornerRadius={6}
+                      onMouseEnter={(_, index) => setHoveredPie(index)}
+                      onMouseLeave={() => setHoveredPie(null)}
+                    >
+                      {progressData.map((entry, index) => (
+                        <Cell key={entry.name} fill={entry.color} opacity={hoveredPie === null || hoveredPie === index ? 1 : 0.35} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute bottom-4 text-center">
+                  <p className="text-5xl font-black leading-none tracking-tighter text-white">68%</p>
+                  <p className="mt-2 text-[11px] font-bold uppercase tracking-[0.2em] text-white/35">Completion</p>
+                </div>
+              </div>
 
-         </div>
+              <div className="flex flex-1 flex-col justify-center gap-4 border-t border-white/10 pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+                {progressData.map((item, i) => (
+                  <div
+                    key={item.name}
+                    className="flex cursor-pointer items-center justify-between rounded-xl border border-transparent bg-white/0 p-3 transition-all hover:border-white/10 hover:bg-white/5"
+                    onMouseEnter={() => setHoveredPie(i)}
+                    onMouseLeave={() => setHoveredPie(null)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="h-3.5 w-3.5 rounded-full" style={{ background: item.color as string }} />
+                      <span className="text-[13px] font-bold text-white/85">{item.name}</span>
+                    </div>
+                    <span className="font-mono text-[12px] font-bold text-white/55">{item.value}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </article>
+
+          <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 md:p-8 shadow-xl">
+            <header className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-[16px] font-bold text-white">Team Operations</h2>
+                <p className="mt-1 text-[12px] text-white/45">Cross-functional task distribution</p>
+              </div>
+              <button className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-[12px] font-bold text-white transition-colors hover:bg-white/10">
+                <Plus className="h-3.5 w-3.5 text-[var(--color-brand-secondary)]" /> Add Member
+              </button>
+            </header>
+
+            <div className="space-y-3">
+              {teamData.map((member) => (
+                <div
+                  key={member.name}
+                  className="group flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-3 transition-all hover:border-white/20 hover:bg-white/10"
+                >
+                  <div className="flex items-center gap-3.5">
+                    <div className={`relative flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-bold text-[var(--color-brand-bg)] ${member.avatarTone}`}>
+                      {member.initial}
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-bold text-white">{member.name}</p>
+                      <p className="line-clamp-1 text-[11px] font-medium text-white/50">{member.role}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`rounded-md border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${member.statusTone}`}>
+                      {member.status}
+                    </span>
+                    <button className="hidden h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/50 transition-colors hover:bg-white/10 hover:text-white sm:flex">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+        </section>
       </Reveal>
 
-      {/* Row 3: Live Feed Logs */}
-      <Reveal delay={0.4}>
-         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            {/* System Timeline */}
-            <div className="bg-[#1c1b1b] rounded-2xl border border-white/5 p-6 md:p-8 shadow-xl min-h-[400px]">
-               <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
-                  <h3 className="font-bold text-[16px] text-white flex items-center gap-2">
-                     <Activity className="w-4 h-4 text-[#bbf600]" /> System Event Log
-                  </h3>
-                  <div className="flex items-center gap-2 bg-[#131313] p-1 rounded-lg border border-white/5">
-                     {['All', 'Alerts'].map(filter => (
-                        <button 
-                           key={filter}
-                           onClick={() => setActiveFilter(filter)}
-                           className={`px-3 py-1.5 rounded-md text-[11px] font-bold transition-all ${activeFilter === filter ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/80'}`}
-                        >
-                           {filter}
-                        </button>
-                     ))}
-                  </div>
-               </div>
-               
-               <div className="relative pl-6 space-y-8 mt-4">
-                  <div className="absolute left-[39px] top-4 bottom-4 w-[2px] bg-gradient-to-b from-[#1d3126] via-white/5 to-transparent"></div>
-                  
-                  {timelineData.map((item, i) => (
-                     <div key={i} className="flex relative items-start gap-6 group cursor-pointer">
-                        <div className={`relative z-10 w-10 h-10 rounded-2xl bg-[#131313] border border-white/5 flex items-center justify-center shrink-0 shadow-lg transition-transform duration-300 group-hover:scale-110 ${item.status === 'completed' ? 'shadow-[0_0_15px_rgba(187, 246, 0,0.15)] group-hover:border-[#bbf600]/50' : 'group-hover:border-white/20'}`}>
-                           {item.icon}
-                           {item.status === 'completed' && <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#1c1b1b] flex items-center justify-center"><div className="w-1.5 h-1.5 rounded-full bg-[#bbf600]"></div></div>}
-                        </div>
-                        <div className="flex flex-col pt-1.5 flex-1 border-b border-white/5 pb-6 group-hover:border-white/10 transition-colors">
-                           <span className="text-[14px] font-bold text-white/90 mb-1 group-hover:text-white transition-colors">
-                              {item.title.replace(item.type, '')}
-                              <span className={item.type === 'Updated' || item.type === 'Added' || item.type === 'Paid' ? 'text-[#bbf600]' : 'text-white'}>
-                                 {item.type}
-                              </span>
-                           </span>
-                           <span className="text-[12px] text-white/40 font-mono mt-1 flex items-center gap-2">
-                             <Clock className="w-3 h-3" /> {item.date}
-                           </span>
-                        </div>
-                     </div>
-                  ))}
-               </div>
-            </div>
-
-            {/* Action Items List */}
-            <div className="bg-[#1c1b1b] rounded-2xl border border-white/5 p-6 md:p-8 shadow-xl min-h-[400px] flex flex-col relative overflow-hidden">
-               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.02]"></div>
-               
-               <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5 relative z-10">
-                  <h3 className="font-bold text-[16px] text-white">Pending Action Items</h3>
-                  <button className="text-[12px] font-bold text-[#bbf600] flex items-center gap-1 hover:underline">
-                     Resolve All <ArrowUpRight className="w-3 h-3" />
+      <Reveal delay={0.3}>
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 md:p-8 shadow-xl">
+            <header className="mb-8 flex items-center justify-between border-b border-white/10 pb-4">
+              <h2 className="flex items-center gap-2 text-[16px] font-bold text-white">
+                <Activity className="h-4 w-4 text-[var(--color-brand-secondary)]" /> System Event Log
+              </h2>
+              <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-[var(--color-brand-bg)] p-1">
+                {['All', 'Alerts'].map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setActiveFilter(filter)}
+                    className={`rounded-md px-3 py-1.5 text-[11px] font-bold transition-all ${
+                      activeFilter === filter ? 'bg-white/10 text-white' : 'text-white/45 hover:text-white/80'
+                    }`}
+                  >
+                    {filter}
                   </button>
-               </div>
-               
-               <div className="space-y-4 relative z-10">
-                  {[
-                    { title: 'Invoice #1042 Review', sub: 'Finance Department', time: '10:30 PM', icon: <DollarSign className="w-4 h-4 text-[#ebd356]" />, alert: true },
-                    { title: 'Approve PR #104', sub: 'GitHub Project Repository', time: '12:00 PM', icon: <UserPlus className="w-4 h-4 text-[#5b8cff]" />, alert: false },
-                    { title: 'Design Handoff Sign-off', sub: 'Product Team', time: '02:30 PM', icon: <CheckCircle2 className="w-4 h-4 text-[#bbf600]" />, alert: false }
-                  ].map((item, i) => (
-                     <div key={i} className="flex items-center justify-between gap-4 p-4 rounded-xl bg-[#131313] border border-white/5 hover:border-white/20 transition-all cursor-pointer group shadow-sm hover:shadow-lg hover:-translate-y-0.5 duration-300">
-                        <div className="flex items-center gap-4">
-                           <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:bg-white/10 transition-colors relative">
-                              {item.icon}
-                              {item.alert && <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f1734f] opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-[#f1734f] border border-[#131313]"></span></span>}
-                           </div>
-                           <div className="flex flex-col gap-1">
-                              <span className="text-[14px] font-bold text-white group-hover:text-[#bbf600] transition-colors">
-                                 {item.title}
-                              </span>
-                              <span className="text-[11px] text-white/50 font-medium">{item.sub}</span>
-                           </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-2">
-                           <span className="text-[11px] font-mono font-medium text-white/40">{item.time}</span>
-                           <button className="text-[10px] uppercase tracking-wider font-bold text-white/30 group-hover:text-white/80 transition-colors px-2 py-1 rounded border border-white/5 group-hover:border-white/20 hover:bg-white/10">Action</button>
-                        </div>
-                     </div>
-                  ))}
-               </div>
-               
-               <button className="mt-auto w-full py-4 border-t border-white/5 text-center text-[12px] font-bold text-white/50 hover:text-white hover:bg-white/5 transition-all w-[calc(100%+48px)] -ml-6 -mb-8 relative z-10">
-                 View Historical Records
-               </button>
+                ))}
+              </div>
+            </header>
+
+            <div className="relative space-y-7 pl-6">
+              <div className="absolute bottom-3 left-[38px] top-4 w-px bg-gradient-to-b from-[var(--color-brand-secondary)]/30 via-white/15 to-transparent" />
+              {filteredTimeline.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={`${item.title}-${item.date}`} className="group relative flex items-start gap-5">
+                    <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-[var(--color-brand-bg)] text-white shadow-lg transition-all group-hover:scale-105 group-hover:border-white/20">
+                      <Icon className="h-4 w-4 text-[var(--color-brand-secondary)]" />
+                    </div>
+                    <div className="flex-1 border-b border-white/10 pb-5 pt-1 group-last:border-b-0">
+                      <p className="text-[14px] font-bold text-white/90">
+                        {item.title} <span className="text-[var(--color-brand-secondary)]">{item.type}</span>
+                      </p>
+                      <p className="mt-1 flex items-center gap-2 text-[12px] text-white/45">
+                        <Clock className="h-3 w-3" /> Due date: {item.date}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </article>
+
+          <article className="relative overflow-hidden rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 md:p-8 shadow-xl">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[var(--color-brand-primary)]/10 via-transparent to-transparent" />
+            <header className="relative z-10 mb-8 flex items-center justify-between border-b border-white/10 pb-4">
+              <h2 className="text-[16px] font-bold text-white">Pending Action Items</h2>
+              <button className="flex items-center gap-1 text-[12px] font-bold text-[var(--color-brand-secondary)] transition-opacity hover:opacity-80">
+                Resolve All <ArrowUpRight className="h-3 w-3" />
+              </button>
+            </header>
+
+            <div className="relative z-10 space-y-4">
+              {actionItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={item.title}
+                    className="group flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-white/10 bg-[var(--color-brand-bg)] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="relative flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-[var(--color-brand-secondary)]">
+                        <Icon className="h-4 w-4" />
+                        {item.alert && (
+                          <span className="absolute -right-1 -top-1 flex h-3 w-3">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-brand-primary)] opacity-70" />
+                            <span className="relative inline-flex h-3 w-3 rounded-full border border-[var(--color-brand-bg)] bg-[var(--color-brand-primary)]" />
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-[14px] font-bold text-white transition-colors group-hover:text-[var(--color-brand-secondary)]">{item.title}</p>
+                        <p className="text-[11px] font-medium text-white/50">{item.sub}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <span className="font-mono text-[11px] text-white/45">{item.time}</span>
+                      <button className="rounded border border-white/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 transition-all hover:border-white/20 hover:bg-white/10 hover:text-white">
+                        Action
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-         </div>
+            <button className="relative z-10 mt-6 w-full rounded-xl border border-white/10 py-3 text-center text-[12px] font-bold text-white/60 transition-all hover:bg-white/5 hover:text-white">
+              View Historical Records
+            </button>
+          </article>
+        </section>
       </Reveal>
-
     </div>
   );
 }
