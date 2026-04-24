@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FolderOpen, ArrowRightLeft, MessageSquare, Headphones, Settings, HelpCircle, LogOut, Smartphone, CheckSquare, Bug, ChevronDown, PanelLeftClose, PanelLeftOpen, CalendarDays } from 'lucide-react';
+import { LayoutDashboard, FolderOpen, ArrowRightLeft, MessageSquare, Headphones, Smartphone, CheckSquare, Bug, ChevronDown, PanelLeftClose, PanelLeftOpen, CalendarDays } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: boolean; onToggle?: () => void }) {
@@ -149,15 +149,6 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
           </nav>
         </div>
 
-        <div>
-           {!isCollapsed && <span className="px-8 text-[10px] font-bold uppercase tracking-widest text-white/30 mb-3 block">Preferences</span>}
-           {isCollapsed && <div className="h-4" />}
-           <nav className="space-y-1">
-             <NavLink to="/app/settings" icon={Settings} label="Settings" active={isActive('/app/settings')} isCollapsed={isCollapsed} />
-             <NavLink to="/app/help" icon={HelpCircle} label="Help Center" active={isActive('/app/help')} isCollapsed={isCollapsed} />
-             <NavLink to="/app/logout" icon={LogOut} label="Log Out" active={isActive('/app/logout')} isCollapsed={isCollapsed} />
-           </nav>
-        </div>
       </div>
       
       {/* Compressed Mobile App Block */}
