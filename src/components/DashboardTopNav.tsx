@@ -1,7 +1,6 @@
 import { Search, Bell, LogOut, User } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -148,10 +147,12 @@ export function DashboardTopNav() {
             className="h-10 w-10 sm:h-12 sm:w-12 rounded-full overflow-hidden border border-border transition-transform hover:scale-105 cursor-pointer bg-brand-surface flex items-center justify-center"
             aria-label="Open profile menu"
           >
-            <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
-              <AvatarImage src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix&backgroundColor=d4bbff" alt="Profile" referrerPolicy="no-referrer" />
-              <AvatarFallback>PF</AvatarFallback>
-            </Avatar>
+            <img
+              src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix&backgroundColor=d4bbff"
+              alt="Profile"
+              className="h-full w-full object-cover"
+              referrerPolicy="no-referrer"
+            />
           </button>
 
           {isProfileOpen && (
