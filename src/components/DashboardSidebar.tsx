@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FolderOpen, ArrowRightLeft, MessageSquare, Headphones, Smartphone, CheckSquare, Bug, ChevronDown, PanelLeftClose, PanelLeftOpen, CalendarDays } from 'lucide-react';
+import { LayoutDashboard, FolderOpen, ArrowRightLeft, MessageSquare, Headphones, Smartphone, CheckSquare, Bug, ChevronDown, PanelLeftClose, PanelLeftOpen, CalendarDays, Users } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: boolean; onToggle?: () => void }) {
@@ -10,12 +10,14 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
   const [bugsOpen, setBugsOpen] = useState(location.pathname.includes('/app/bug'));
   const [timesheetsOpen, setTimesheetsOpen] = useState(location.pathname.includes('/app/timesheet'));
   const [budgetOpen, setBudgetOpen] = useState(location.pathname.includes('/app/budget'));
+  const [hrmOpen, setHrmOpen] = useState(location.pathname.includes('/app/hrm'));
 
   useEffect(() => {
     if (location.pathname.includes('/app/task')) setTasksOpen(true);
     if (location.pathname.includes('/app/bug')) setBugsOpen(true);
     if (location.pathname.includes('/app/timesheet')) setTimesheetsOpen(true);
     if (location.pathname.includes('/app/budget')) setBudgetOpen(true);
+    if (location.pathname.includes('/app/hrm')) setHrmOpen(true);
   }, [location.pathname]);
 
   return (
@@ -46,6 +48,27 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
           {isCollapsed && <div className="h-4" />}
           <nav className="space-y-1 relative">
             <NavLink to="/app/dashboard" icon={LayoutDashboard} label="Executive Console" active={isActive('/app/dashboard')} isCollapsed={isCollapsed} />
+            {isCollapsed ? (
+              <NavLink to="/app/hrm/dashboard" icon={Users} label="HRM" active={location.pathname.includes('/app/hrm')} isCollapsed={isCollapsed} />
+            ) : (
+              <div>
+                <button
+                  onClick={() => setHrmOpen(!hrmOpen)}
+                  className={`flex items-center w-full justify-between px-4 mx-4 pr-8 h-10 rounded-xl transition-all duration-300 font-medium group ${location.pathname.includes('/app/hrm') ? 'text-white' : 'text-white/40 hover:bg-white/5 hover:text-white'}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Users className={`w-4 h-4 flex-shrink-0 transition-colors ${location.pathname.includes('/app/hrm') ? 'text-[#bbf600]' : 'text-white/30 group-hover:text-white/70'}`} />
+                    <span className="text-[13px]">HRM</span>
+                  </div>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${hrmOpen ? '' : '-rotate-90'}`} />
+                </button>
+                {hrmOpen && (
+                  <div className="ml-8 mt-1 space-y-1 border-l border-white/5 pl-2">
+                    <NavLink to="/app/hrm/dashboard" label="HRM Dashboard" active={isActive('/app/hrm/dashboard')} isSub isCollapsed={isCollapsed} />
+                  </div>
+                )}
+              </div>
+            )}
             <NavLink to="/app/projects" icon={FolderOpen} label="Projects" active={isActive('/app/projects')} isCollapsed={isCollapsed} />
             
             {/* Tasks Menu */}
