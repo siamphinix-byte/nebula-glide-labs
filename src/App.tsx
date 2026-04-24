@@ -29,6 +29,7 @@ import { Reveal } from './components/GSAPWrapper';
 import { FloatingNav } from './components/FloatingNav';
 import { DashboardLayout } from './components/DashboardLayout';
 import { Dashboard } from './pages/Dashboard';
+import { HRMDashboard } from './pages/HRMDashboard';
 import { Projects } from './pages/Projects';
 import { Tasks } from './pages/Tasks';
 import { TaskStages } from './pages/TaskStages';
@@ -141,6 +142,7 @@ export default function App() {
 
         {/* DASHBOARD PORTAL PAGES */}
         <Route path="/app/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
+        <Route path="/app/hrm/dashboard" element={<DashboardLayout><HRMDashboard /></DashboardLayout>} />
         <Route path="/app/projects" element={<DashboardLayout><Projects /></DashboardLayout>} />
         <Route path="/app/tasks" element={<DashboardLayout><Tasks /></DashboardLayout>} />
         <Route path="/app/task-stages" element={<DashboardLayout><TaskStages /></DashboardLayout>} />
