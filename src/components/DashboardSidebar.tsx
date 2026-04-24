@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FolderOpen, ArrowRightLeft, MessageSquare, Headphones, Smartphone, CheckSquare, Bug, ChevronDown, PanelLeftClose, PanelLeftOpen, CalendarDays, Users } from 'lucide-react';
+import { LayoutDashboard, FolderOpen, MessageSquare, Smartphone, CheckSquare, Bug, ChevronDown, PanelLeftClose, PanelLeftOpen, CalendarDays, Users } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: boolean; onToggle?: () => void }) {
