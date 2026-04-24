@@ -1,16 +1,6 @@
 import { Search, Bell, LogOut, User } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from './ui/alert-dialog';
 
 export function DashboardTopNav() {
   const navigate = useNavigate();
@@ -180,20 +170,35 @@ export function DashboardTopNav() {
         </div>
       </div>
 
-      <AlertDialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Do you want to logout?</AlertDialogTitle>
-            <AlertDialogDescription>
+      {isLogoutDialogOpen && (
+        <div className="fixed inset-0 z-[70] pointer-events-auto">
+          <button
+            aria-label="Close logout dialog"
+            onClick={() => setIsLogoutDialogOpen(false)}
+            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+          />
+          <div className="absolute left-1/2 top-1/2 w-[92%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-brand-surface p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-foreground">Do you want to logout?</h3>
+            <p className="text-sm text-foreground/70 mt-2">
               You will be redirected to the login page and need to sign in again.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleLogout}>Logout</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </p>
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setIsLogoutDialogOpen(false)}
+                className="px-4 py-2 rounded-lg border border-border text-sm text-foreground/80 hover:bg-brand-muted transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-lg bg-brand-primary text-primary-foreground text-sm hover:opacity-90 transition-opacity"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
