@@ -1,479 +1,517 @@
 import React, { useMemo, useState } from 'react';
-import {
-  BellRing,
-  Building2,
-  CalendarDays,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Clock3,
-  Dot,
-  Megaphone,
-  UserCheck,
-  UserMinus,
-  Users,
-} from 'lucide-react';
-import { Bar, BarChart, CartesianGrid, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Reveal, StaggerReveal } from '../components/GSAPWrapper';
+import {
+  Activity,
+  ArrowUpRight,
+  Calendar,
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  DollarSign,
+  DownloadCloud,
+  FileCheck,
+  FileText,
+  MoreHorizontal,
+  Plus,
+  Target,
+  UserPlus,
+  Zap,
+} from 'lucide-react';
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+} from 'recharts';
+import { useNavigate } from 'react-router-dom';
 
-type LeaveType = 'Annual' | 'Casual' | 'Sick';
-type LeaveStatus = 'Approved' | 'Pending' | 'Rejected';
-type CalendarMode = 'month' | 'week' | 'day';
-
-const departmentData = [
-  { name: 'Sales & Marketing', office: 'Main Office', count: 17 },
-  { name: 'Operations', office: 'Main Office', count: 10 },
-  { name: 'Customer Service', office: 'Main Office', count: 13 },
-  { name: 'Research & Development', office: 'Downtown Branch', count: 9 },
-  { name: 'Quality Assurance', office: 'Downtown Branch', count: 10 },
-  { name: 'Legal & Compliance', office: 'Downtown Branch', count: 5 },
-];
-
-const employeesOnLeave = [
-  { id: 'EMP2061001', name: 'Robert Taylor', type: 'Annual' as LeaveType, days: 1 },
-  { id: 'EMP2061002', name: 'Christopher Lee', type: 'Casual' as LeaveType, days: 1 },
-  { id: 'EMP2061003', name: 'Ariana Wilson', type: 'Sick' as LeaveType, days: 2 },
-  { id: 'EMP2061004', name: 'Mila Davis', type: 'Annual' as LeaveType, days: 3 },
-];
-
-const missingAttendanceSeed = [
-  { id: 'EMP2062001', name: 'John Smith' },
-  { id: 'EMP2062002', name: 'Michael Brown' },
-  { id: 'EMP2062003', name: 'David Wilson' },
-  { id: 'EMP2062004', name: 'Robert Taylor' },
-];
-
-const leaveApplications = [
-  { name: 'Mark Allen', leave: 'Sick Leave', status: 'Approved' as LeaveStatus, from: '2025-10-17', to: '2025-10-20' },
-  { name: 'Daniel Thompson', leave: 'Study Leave', status: 'Approved' as LeaveStatus, from: '2025-10-06', to: '2025-10-07' },
-  { name: 'Daniel Thompson', leave: 'Personal Leave', status: 'Pending' as LeaveStatus, from: '2025-10-01', to: '2025-10-01' },
-  { name: 'Nora Jenkins', leave: 'Sick Leave', status: 'Rejected' as LeaveStatus, from: '2025-10-03', to: '2025-10-03' },
-];
-
-const announcementsSeed = [
+const progressData = [
   {
-    title: 'Company Social Responsibility Initiative',
-    description: 'Community outreach program encouraging volunteerism and charitable contributions.',
-    date: '2026-01-02',
+    name: 'Completed',
+    value: 68,
+    chartFill: 'var(--color-brand-secondary)',
+    dotClass: 'bg-[var(--color-brand-secondary)]',
+    barClass: 'bg-[var(--color-brand-secondary)]',
+    patterned: false,
   },
   {
-    title: 'Workplace Safety Inspection Schedule',
-    description: 'Regular inspections ensuring safety standards and hazard identification across all work areas.',
-    date: '2025-12-24',
+    name: 'In Progress',
+    value: 15,
+    chartFill: 'var(--color-brand-teal)',
+    dotClass: 'bg-[var(--color-brand-teal)]',
+    barClass: 'bg-[var(--color-brand-teal)]',
+    patterned: false,
   },
   {
-    title: 'Q4 Benefits Enrollment Window',
-    description: 'Open enrollment starts next Monday. Review updated medical and family plans before submission.',
-    date: '2025-12-18',
+    name: 'Pending',
+    value: 17,
+    chartFill: 'url(#progressStripes)',
+    dotClass:
+      'bg-[repeating-linear-gradient(45deg,var(--color-brand-primary)_0px,var(--color-brand-primary)_3px,color-mix(in_srgb,var(--color-brand-primary)_35%,transparent)_3px,color-mix(in_srgb,var(--color-brand-primary)_35%,transparent)_6px)]',
+    barClass:
+      'bg-[repeating-linear-gradient(45deg,var(--color-brand-primary)_0px,var(--color-brand-primary)_6px,color-mix(in_srgb,var(--color-brand-primary)_35%,transparent)_6px,color-mix(in_srgb,var(--color-brand-primary)_35%,transparent)_12px)]',
+    patterned: true,
   },
 ];
 
-const calendarEvents = [
-  { date: '2026-04-08', label: 'Team Briefing' },
-  { date: '2026-04-15', label: 'Technical Audit' },
-  { date: '2026-04-21', label: 'Staff Birthday' },
+const statCards = [
+  {
+    title: 'Hours Logged',
+    value: '240',
+    sub: '/350 target',
+    delta: '+12 hrs this week',
+    icon: Clock,
+    tone: 'secondary',
+    chart: 'hours',
+  },
+  {
+    title: 'Files Shared',
+    value: '42',
+    sub: 'assets synced',
+    delta: '9 updated today',
+    icon: DownloadCloud,
+    tone: 'primary',
+    chart: 'files',
+  },
+  {
+    title: 'Cost to Date',
+    value: '$45.2k',
+    sub: 'of $60k budget',
+    delta: '75% allocated',
+    icon: DollarSign,
+    tone: 'teal',
+    chart: 'cost',
+  },
 ];
 
-const attendanceTrend = [
-  { day: 'Mon', present: 97, absent: 3 },
-  { day: 'Tue', present: 95, absent: 5 },
-  { day: 'Wed', present: 96, absent: 4 },
-  { day: 'Thu', present: 98, absent: 2 },
-  { day: 'Fri', present: 94, absent: 6 },
+const teamData = [
+  {
+    name: 'Sarah Jenkins',
+    role: 'GitHub Project Repository',
+    status: 'Completed',
+    initial: 'SJ',
+    avatarTone: 'bg-[var(--color-brand-secondary)]',
+    statusTone: 'bg-[var(--color-brand-secondary)]/10 text-[var(--color-brand-secondary)] border-[var(--color-brand-secondary)]/20',
+  },
+  {
+    name: 'Marcus Chen',
+    role: 'Develop Search & Filter',
+    status: 'Pending',
+    initial: 'MC',
+    avatarTone: 'bg-[var(--color-brand-primary)]',
+    statusTone: 'bg-[var(--color-brand-primary)]/10 text-[var(--color-brand-primary)] border-[var(--color-brand-primary)]/20',
+  },
+  {
+    name: 'Alex Rivera',
+    role: 'Database Architecture',
+    status: 'In Progress',
+    initial: 'AR',
+    avatarTone: 'bg-[var(--color-brand-teal)]',
+    statusTone: 'bg-[var(--color-brand-teal)]/10 text-[var(--color-brand-teal)] border-[var(--color-brand-teal)]/20',
+  },
 ];
 
-function getCalendarCells(viewDate: Date) {
-  const firstOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
-  const startDay = firstOfMonth.getDay();
-  const gridStart = new Date(firstOfMonth);
-  gridStart.setDate(firstOfMonth.getDate() - startDay);
+const timelineData = [
+  { title: 'Staging Env Updated', date: 'Nov 24, 2026', icon: FileCheck, type: 'Updated', status: 'completed' },
+  { title: 'Design Review Added', date: 'Nov 28, 2026', icon: Activity, type: 'Added', status: 'pending' },
+  { title: 'Invoice #1042 Paid', date: 'Dec 5, 2026', icon: FileText, type: 'Paid', status: 'completed' },
+  { title: 'QA Automation Triggered', date: 'Dec 8, 2026', icon: Zap, type: 'Triggered', status: 'pending' },
+];
 
-  return Array.from({ length: 42 }, (_, i) => {
-    const date = new Date(gridStart);
-    date.setDate(gridStart.getDate() + i);
-    return date;
-  });
-}
+const actionItems = [
+  { title: 'Invoice #1042 Review', sub: 'Finance Department', time: '10:30 PM', icon: DollarSign, alert: true },
+  { title: 'Approve PR #104', sub: 'GitHub Project Repository', time: '12:00 PM', icon: UserPlus, alert: false },
+  { title: 'Design Handoff Sign-off', sub: 'Product Team', time: '02:30 PM', icon: CheckCircle2, alert: false },
+];
+
+const miniHoursData = [{ v: 10 }, { v: 25 }, { v: 15 }, { v: 30 }, { v: 28 }, { v: 45 }, { v: 55 }];
+const miniCostData = [{ v: 400 }, { v: 300 }, { v: 600 }, { v: 800 }, { v: 500 }, { v: 900 }, { v: 1000 }];
+const velocityData = [{ v: 30 }, { v: 40 }, { v: 38 }, { v: 52 }, { v: 56 }, { v: 64 }, { v: 70 }];
 
 export function Dashboard() {
-  const [viewDate, setViewDate] = useState(new Date(2026, 3, 1));
-  const [calendarMode, setCalendarMode] = useState<CalendarMode>('month');
-  const [leaveFilter, setLeaveFilter] = useState<LeaveType | 'All'>('All');
-  const [applicationFilter, setApplicationFilter] = useState<LeaveStatus | 'All'>('All');
-  const [missingAttendance, setMissingAttendance] = useState(missingAttendanceSeed);
-  const [announcements, setAnnouncements] = useState(announcementsSeed);
-  const [lastAction, setLastAction] = useState('Dashboard ready');
-  const [totalEmployees, setTotalEmployees] = useState(10);
-  const [presentToday, setPresentToday] = useState(10);
-  const [onLeaveCount, setOnLeaveCount] = useState(4);
+  const navigate = useNavigate();
+  const [activeFilter, setActiveFilter] = useState('All');
+  const [hoveredPie, setHoveredPie] = useState<number | null>(null);
 
-  const absentToday = Math.max(totalEmployees - presentToday - onLeaveCount, 0);
-
-  const statCards = [
-    { label: 'Total Employees', value: totalEmployees, hint: 'Active employees', icon: Users, tone: 'text-[var(--color-brand-primary)]' },
-    { label: 'Present Today', value: presentToday, hint: 'Attendance rate healthy', icon: UserCheck, tone: 'text-[var(--color-brand-teal)]' },
-    { label: 'Absent Today', value: absentToday, hint: 'Track by shift manager', icon: UserMinus, tone: 'text-[var(--color-brand-secondary)]' },
-    { label: 'On Leave', value: onLeaveCount, hint: 'Pending approvals visible', icon: CalendarDays, tone: 'text-[var(--color-brand-primary)]' },
-  ];
-
-  const pieData = [
-    { name: 'Present', value: presentToday, fill: 'var(--color-brand-teal)' },
-    { name: 'On Leave', value: onLeaveCount, fill: 'var(--color-brand-primary)' },
-    { name: 'Absent', value: absentToday || 1, fill: 'var(--color-brand-secondary)' },
-  ];
-
-  const sortedDepartments = useMemo(() => [...departmentData].sort((a, b) => b.count - a.count), []);
-
-  const filteredLeave = useMemo(
-    () => (leaveFilter === 'All' ? employeesOnLeave : employeesOnLeave.filter((item) => item.type === leaveFilter)),
-    [leaveFilter],
+  const filteredTimeline = useMemo(
+    () => (activeFilter === 'Alerts' ? timelineData.filter((item) => item.status !== 'completed') : timelineData),
+    [activeFilter],
   );
 
-  const filteredApplications = useMemo(
-    () =>
-      applicationFilter === 'All'
-        ? leaveApplications
-        : leaveApplications.filter((application) => application.status === applicationFilter),
-    [applicationFilter],
-  );
-
-  const calendarCells = useMemo(() => getCalendarCells(viewDate), [viewDate]);
-  const monthTitle = viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
-  const quickActions = [
-    {
-      title: 'Add New Employee',
-      run: () => {
-        setTotalEmployees((prev) => prev + 1);
-        setPresentToday((prev) => prev + 1);
-        setLastAction('New employee added to active headcount');
-      },
-    },
-    {
-      title: 'Mark Attendance',
-      run: () => {
-        setPresentToday((prev) => Math.min(prev + 1, totalEmployees));
-        setLastAction('Attendance register synced for current shift');
-      },
-    },
-    {
-      title: 'Apply for Leave',
-      run: () => {
-        setOnLeaveCount((prev) => prev + 1);
-        setLastAction('Leave request added to approval queue');
-      },
-    },
-    {
-      title: 'Process Payroll',
-      run: () => setLastAction('Payroll processing queued for finance review'),
-    },
-    {
-      title: 'Create Promotion',
-      run: () => setLastAction('Promotion workflow opened for HR admin'),
-    },
-    {
-      title: 'Create Resignation',
-      run: () => {
-        setTotalEmployees((prev) => Math.max(prev - 1, 1));
-        setPresentToday((prev) => Math.max(prev - 1, 0));
-        setLastAction('Resignation record drafted and sent for approval');
-      },
-    },
-  ];
+  const completionRate = progressData.find((item) => item.name === 'Completed')?.value ?? 0;
 
   return (
-    <div className="mx-auto max-w-[1420px] space-y-6 pb-20 font-sans">
+    <div className="max-w-[1400px] mx-auto space-y-6 pb-24 h-full font-sans animate-fade-in">
       <Reveal direction="down">
-        <section className="rounded-2xl border border-white/10 bg-brand-surface p-5 shadow-2xl">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-white">HRM Dashboard</h1>
-              <p className="mt-1 text-sm text-white/60">Real-time visibility for people operations, leave, and attendance.</p>
+        <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-5 md:p-6 shadow-2xl">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_10%,rgba(122,60,245,0.18),transparent_38%),radial-gradient(circle_at_100%_100%,rgba(28,219,186,0.12),transparent_40%)]" />
+          <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-white/55">
+              <span className="rounded-md border border-white/15 bg-white/5 px-2.5 py-1 text-white/70">Dashboard</span>
+              <ChevronRight className="h-3.5 w-3.5" />
+              <span className="rounded-md border border-[var(--color-brand-secondary)]/25 bg-[var(--color-brand-secondary)]/10 px-2.5 py-1 text-[var(--color-brand-secondary)]">
+                Operational View
+              </span>
             </div>
-            <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80">{lastAction}</div>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => navigate('/app/projects')}
+                className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-[13px] font-semibold text-white transition-all hover:bg-white/10"
+              >
+                Open Projects
+              </button>
+              <button
+                onClick={() => navigate('/app/projects')}
+                className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-brand-primary)]/45 bg-[var(--color-brand-primary)]/20 px-4 py-2 text-[13px] font-semibold text-white transition-all hover:bg-[var(--color-brand-primary)]/30"
+              >
+                <Plus className="h-4 w-4 text-[var(--color-brand-secondary)]" /> Add Task
+              </button>
+            </div>
           </div>
         </section>
       </Reveal>
 
-      <StaggerReveal className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <StaggerReveal className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
         {statCards.map((card) => {
           const Icon = card.icon;
+          const toneClass =
+            card.tone === 'secondary'
+              ? 'text-[var(--color-brand-secondary)]'
+              : card.tone === 'teal'
+                ? 'text-[var(--color-brand-teal)]'
+                : 'text-[var(--color-brand-primary)]';
+
           return (
-            <article key={card.label} className="rounded-xl border border-white/10 bg-brand-surface p-5 transition-all hover:border-white/20">
-              <div className="mb-3 flex items-center justify-between">
-                <p className="text-sm font-semibold text-white/75">{card.label}</p>
-                <Icon className={`h-4 w-4 ${card.tone}`} />
+            <article
+              key={card.title}
+              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20"
+            >
+              <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/5 blur-2xl transition-all duration-300 group-hover:bg-white/10" />
+              <div className="relative z-10 mb-6 flex items-start justify-between">
+                <div className="flex items-center gap-2 text-white/55">
+                  <Icon className={`h-4 w-4 ${toneClass}`} />
+                  <span className="text-[13px] font-bold uppercase tracking-wider">{card.title}</span>
+                </div>
+                <button className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 transition-colors hover:bg-white/15 hover:text-white">
+                  <ArrowUpRight className="h-4 w-4" />
+                </button>
               </div>
-              <p className="text-4xl font-bold text-white">{card.value}</p>
-              <p className="mt-1 text-xs text-white/55">{card.hint}</p>
+              <div className="relative z-10 space-y-1">
+                <div className="text-4xl font-black tracking-tighter text-white">
+                  {card.value} <span className="text-base font-bold text-white/35">{card.sub}</span>
+                </div>
+                <p className={`text-[11px] font-bold ${toneClass}`}>{card.delta}</p>
+              </div>
+
+              {card.chart === 'hours' && (
+                <div className="relative z-10 mt-5 h-12 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={miniHoursData}>
+                      <defs>
+                        <linearGradient id="hoursGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="var(--color-brand-secondary)" stopOpacity={0.45} />
+                          <stop offset="100%" stopColor="var(--color-brand-secondary)" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <Tooltip
+                        cursor={false}
+                        contentStyle={{
+                          backgroundColor: 'var(--color-brand-bg)',
+                          borderColor: 'rgba(255,255,255,0.12)',
+                          borderRadius: '10px',
+                          color: 'white',
+                          fontSize: '12px',
+                        }}
+                      />
+                      <Area type="monotone" dataKey="v" stroke="var(--color-brand-secondary)" strokeWidth={2} fill="url(#hoursGradient)" dot={false} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {card.chart === 'cost' && (
+                <div className="relative z-10 mt-5 h-12 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={miniCostData}>
+                      <Tooltip
+                        cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                        contentStyle={{
+                          backgroundColor: 'var(--color-brand-bg)',
+                          borderColor: 'rgba(255,255,255,0.12)',
+                          borderRadius: '10px',
+                          color: 'white',
+                          fontSize: '12px',
+                        }}
+                      />
+                      <Bar dataKey="v" fill="var(--color-brand-teal)" radius={[2, 2, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {card.chart === 'files' && (
+                <div className="relative z-10 mt-5 flex items-center justify-end gap-2">
+                  {['PNG', 'PDF', 'FIG'].map((type) => (
+                    <div
+                      key={type}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/10 text-[10px] font-bold text-white"
+                    >
+                      {type}
+                    </div>
+                  ))}
+                </div>
+              )}
             </article>
           );
         })}
+
+        <article className="group relative overflow-hidden rounded-2xl border border-[var(--color-brand-primary)]/30 bg-[var(--color-brand-primary)]/20 p-6 shadow-xl">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[var(--color-brand-primary)]/30 via-transparent to-[var(--color-brand-teal)]/10" />
+          <div className="relative z-10 mb-6 flex items-start justify-between">
+            <div className="flex items-center gap-2 text-white/80">
+              <Target className="h-4 w-4 text-[var(--color-brand-secondary)]" />
+              <span className="text-[13px] font-bold uppercase tracking-wider">Next Milestone</span>
+            </div>
+            <button className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white hover:text-[var(--color-brand-bg)]">
+              <ArrowUpRight className="h-4 w-4" />
+            </button>
+          </div>
+          <p className="text-[30px] font-black leading-none tracking-tight text-white">Beta Release</p>
+          <p className="mt-3 flex items-center gap-2 text-[12px] font-bold text-white/75">
+            <Calendar className="h-3.5 w-3.5" /> Oct 24, 2026
+          </p>
+          <div className="mt-5 h-12 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={velocityData}>
+                <defs>
+                  <linearGradient id="velocityGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--color-brand-primary)" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="var(--color-brand-primary)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <Area dataKey="v" stroke="var(--color-brand-primary)" strokeWidth={2} fill="url(#velocityGradient)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </article>
       </StaggerReveal>
 
-      <Reveal>
-        <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <article className="rounded-xl border border-white/10 bg-brand-surface p-5">
-            <header className="mb-4 flex items-center justify-between">
-              <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
-                <Building2 className="h-4 w-4 text-[var(--color-brand-primary)]" /> Department Distribution
-              </h2>
-              <span className="text-xs text-white/60">Across branches</span>
+      <Reveal delay={0.2}>
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_1fr]">
+          <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 md:p-8 shadow-xl">
+            <header className="mb-8 flex items-center justify-between">
+              <h2 className="text-[16px] font-bold text-white">Project Progress Topology</h2>
+              <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-white/65">
+                Detailed Report
+              </span>
             </header>
-            <div className="space-y-3">
-              {sortedDepartments.map((dept) => (
-                <div key={dept.name}>
-                  <div className="mb-1 flex items-center justify-between text-sm">
-                    <span className="text-white/85">{dept.name} ({dept.office})</span>
-                    <span className="font-semibold text-white">{dept.count}</span>
+
+            <div className="flex flex-col gap-8 lg:flex-row">
+              <div className="relative mx-auto flex h-[220px] w-[220px] items-end justify-center">
+                <ResponsiveContainer width="100%" height={240} className="absolute bottom-[-14px]">
+                  <PieChart>
+                    <defs>
+                      <pattern id="progressStripes" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+                        <rect width="8" height="8" fill="var(--color-brand-bg)" />
+                        <line x1="0" y1="0" x2="0" y2="8" stroke="white" strokeWidth="1" strokeOpacity="0.25" />
+                      </pattern>
+                    </defs>
+                    <Pie
+                      data={progressData}
+                      cx="50%"
+                      cy="100%"
+                      startAngle={180}
+                      endAngle={0}
+                      innerRadius="74%"
+                      outerRadius="100%"
+                      paddingAngle={3}
+                      dataKey="value"
+                      stroke="none"
+                      cornerRadius={6}
+                      onMouseEnter={(_, index) => setHoveredPie(index)}
+                      onMouseLeave={() => setHoveredPie(null)}
+                    >
+                      {progressData.map((entry, index) => (
+                        <Cell key={entry.name} fill={entry.chartFill} opacity={hoveredPie === null || hoveredPie === index ? 1 : 0.35} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute bottom-4 text-center">
+                  <p className="text-5xl font-black leading-none tracking-tighter text-white">{completionRate}%</p>
+                  <p className="mt-2 text-[11px] font-bold uppercase tracking-[0.2em] text-white/35">Completion</p>
+                </div>
+              </div>
+
+              <div className="flex flex-1 flex-col justify-center gap-4 border-t border-white/10 pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+                <div className="rounded-xl border border-white/10 bg-[var(--color-brand-bg)]/60 p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-white/45">Detailed Report</p>
+                  <p className="mt-2 text-3xl font-black leading-none tracking-tight text-white">{completionRate}%</p>
+                  <p className="mt-1 text-[12px] font-semibold text-white/55">Completion</p>
+                </div>
+
+                {progressData.map((item, i) => (
+                  <div
+                    key={item.name}
+                    className="flex cursor-pointer items-center justify-between rounded-xl border border-transparent bg-white/0 p-3 transition-all hover:border-white/10 hover:bg-white/5"
+                    onMouseEnter={() => setHoveredPie(i)}
+                    onMouseLeave={() => setHoveredPie(null)}
+                  >
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <span className={`h-3.5 w-3.5 shrink-0 rounded-full border border-white/20 ${item.dotClass}`} />
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex items-center justify-between gap-3">
+                          <span className="text-[13px] font-bold text-white/85">{item.name}</span>
+                          <span className="text-[12px] font-semibold text-white/55">{item.value}%</span>
+                        </div>
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                          <div className={`h-full rounded-full transition-all duration-300 ${item.barClass}`} style={{ width: `${item.value}%` }} />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-white/10">
-                    <div className="h-2 rounded-full bg-[var(--color-brand-primary)]" style={{ width: `${Math.min((dept.count / 20) * 100, 100)}%` }} />
+                ))}
+              </div>
+            </div>
+          </article>
+
+          <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 md:p-8 shadow-xl">
+            <header className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-[16px] font-bold text-white">Team Operations</h2>
+                <p className="mt-1 text-[12px] text-white/45">Cross-functional task distribution</p>
+              </div>
+              <button className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-[12px] font-bold text-white transition-colors hover:bg-white/10">
+                <Plus className="h-3.5 w-3.5 text-[var(--color-brand-secondary)]" /> Add Member
+              </button>
+            </header>
+
+            <div className="space-y-3">
+              {teamData.map((member) => (
+                <div
+                  key={member.name}
+                  className="group flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-3 transition-all hover:border-white/20 hover:bg-white/10"
+                >
+                  <div className="flex items-center gap-3.5">
+                    <div className={`relative flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-bold text-[var(--color-brand-bg)] ${member.avatarTone}`}>
+                      {member.initial}
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-bold text-white">{member.name}</p>
+                      <p className="line-clamp-1 text-[11px] font-medium text-white/50">{member.role}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`rounded-md border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${member.statusTone}`}>
+                      {member.status}
+                    </span>
+                    <button className="hidden h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/50 transition-colors hover:bg-white/10 hover:text-white sm:flex">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
           </article>
-
-          <article className="rounded-xl border border-white/10 bg-brand-surface p-5">
-            <header className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">Quick Actions</h2>
-              <Clock3 className="h-4 w-4 text-[var(--color-brand-secondary)]" />
-            </header>
-            <div className="grid grid-cols-1 gap-2">
-              {quickActions.map((action) => (
-                <button
-                  key={action.title}
-                  onClick={action.run}
-                  className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-left text-sm font-medium text-white/90 transition-all hover:border-white/20 hover:bg-white/10"
-                >
-                  {action.title}
-                </button>
-              ))}
-            </div>
-          </article>
         </section>
       </Reveal>
 
-      <Reveal delay={0.1}>
+      <Reveal delay={0.3}>
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <article className="rounded-xl border border-white/10 bg-brand-surface p-5">
-            <header className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">Employees on Leave</h2>
-              <div className="flex gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
-                {(['All', 'Annual', 'Casual', 'Sick'] as const).map((filter) => (
+          <article className="rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 md:p-8 shadow-xl">
+            <header className="mb-8 flex items-center justify-between border-b border-white/10 pb-4">
+              <h2 className="flex items-center gap-2 text-[16px] font-bold text-white">
+                <Activity className="h-4 w-4 text-[var(--color-brand-secondary)]" /> System Event Log
+              </h2>
+              <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-[var(--color-brand-bg)] p-1">
+                {['All', 'Alerts'].map((filter) => (
                   <button
                     key={filter}
-                    onClick={() => setLeaveFilter(filter)}
-                    className={`rounded-md px-2 py-1 text-xs ${leaveFilter === filter ? 'bg-white/15 text-white' : 'text-white/60 hover:text-white'}`}
+                    onClick={() => setActiveFilter(filter)}
+                    className={`rounded-md px-3 py-1.5 text-[11px] font-bold transition-all ${
+                      activeFilter === filter ? 'bg-white/10 text-white' : 'text-white/45 hover:text-white/80'
+                    }`}
                   >
                     {filter}
                   </button>
                 ))}
               </div>
             </header>
-            <div className="space-y-2">
-              {filteredLeave.map((employee) => (
-                <div key={employee.id} className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
-                  <div>
-                    <p className="text-sm font-semibold text-white">{employee.name}</p>
-                    <p className="text-xs text-white/55">{employee.type} Leave</p>
+
+            <div className="relative space-y-7 pl-6">
+              <div className="absolute bottom-3 left-[38px] top-4 w-px bg-gradient-to-b from-[var(--color-brand-secondary)]/30 via-white/15 to-transparent" />
+              {filteredTimeline.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={`${item.title}-${item.date}`} className="group relative flex items-start gap-5">
+                    <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-[var(--color-brand-bg)] text-white shadow-lg transition-all group-hover:scale-105 group-hover:border-white/20">
+                      <Icon className="h-4 w-4 text-[var(--color-brand-secondary)]" />
+                    </div>
+                    <div className="flex-1 border-b border-white/10 pb-5 pt-1 group-last:border-b-0">
+                      <p className="text-[14px] font-bold text-white/90">
+                        {item.title} <span className="text-[var(--color-brand-secondary)]">{item.type}</span>
+                      </p>
+                      <p className="mt-1 flex items-center gap-2 text-[12px] text-white/45">
+                        <Clock className="h-3 w-3" /> Due date: {item.date}
+                      </p>
+                    </div>
                   </div>
-                  <span className="text-xs font-semibold text-white/75">{employee.days} day{employee.days > 1 ? 's' : ''}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </article>
 
-          <article className="rounded-xl border border-white/10 bg-brand-surface p-5">
-            <header className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">Missing Attendance Today</h2>
-              <BellRing className="h-4 w-4 text-[var(--color-brand-secondary)]" />
+          <article className="relative overflow-hidden rounded-2xl border border-white/10 bg-[var(--color-brand-surface)] p-6 md:p-8 shadow-xl">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[var(--color-brand-primary)]/10 via-transparent to-transparent" />
+            <header className="relative z-10 mb-8 flex items-center justify-between border-b border-white/10 pb-4">
+              <h2 className="text-[16px] font-bold text-white">Pending Action Items</h2>
+              <button className="flex items-center gap-1 text-[12px] font-bold text-[var(--color-brand-secondary)] transition-opacity hover:opacity-80">
+                Resolve All <ArrowUpRight className="h-3 w-3" />
+              </button>
             </header>
-            <div className="space-y-2">
-              {missingAttendance.map((employee) => (
-                <div key={employee.id} className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
-                  <div>
-                    <p className="text-sm font-semibold text-white">{employee.name}</p>
-                    <p className="text-xs text-white/55">{employee.id}</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setMissingAttendance((prev) => prev.filter((item) => item.id !== employee.id));
-                      setLastAction(`Reminder sent to ${employee.name}`);
-                    }}
-                    className="rounded-md border border-white/10 px-2 py-1 text-xs text-white/80 transition-colors hover:bg-white/10"
+
+            <div className="relative z-10 space-y-4">
+              {actionItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={item.title}
+                    className="group flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-white/10 bg-[var(--color-brand-bg)] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20"
                   >
-                    Mark Reminded
-                  </button>
-                </div>
-              ))}
-            </div>
-          </article>
-        </section>
-      </Reveal>
-
-      <Reveal delay={0.15}>
-        <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.7fr_1fr]">
-          <article className="rounded-xl border border-white/10 bg-brand-surface p-5">
-            <header className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <h2 className="text-lg font-semibold text-white">Events & Holidays Calendar</h2>
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="flex gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
-                  <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="rounded-md p-1.5 text-white/80 hover:bg-white/10"><ChevronLeft className="h-4 w-4" /></button>
-                  <button onClick={() => setViewDate(new Date())} className="rounded-md px-3 py-1 text-xs text-white/80 hover:bg-white/10">Today</button>
-                  <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="rounded-md p-1.5 text-white/80 hover:bg-white/10"><ChevronRight className="h-4 w-4" /></button>
-                </div>
-                <div className="flex gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
-                  {(['month', 'week', 'day'] as const).map((mode) => (
-                    <button key={mode} onClick={() => setCalendarMode(mode)} className={`rounded-md px-3 py-1 text-xs uppercase ${calendarMode === mode ? 'bg-white/15 text-white' : 'text-white/60 hover:text-white'}`}>
-                      {mode}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </header>
-
-            <p className="mb-3 text-center text-2xl font-bold text-white">{monthTitle}</p>
-
-            {calendarMode === 'month' && (
-              <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                  <div key={day} className="bg-brand-bg px-2 py-2 text-center text-xs font-semibold text-white/70">{day}</div>
-                ))}
-                {calendarCells.map((cell) => {
-                  const inMonth = cell.getMonth() === viewDate.getMonth();
-                  const iso = `${cell.getFullYear()}-${String(cell.getMonth() + 1).padStart(2, '0')}-${String(cell.getDate()).padStart(2, '0')}`;
-                  const event = calendarEvents.find((entry) => entry.date === iso);
-                  return (
-                    <div key={iso} className={`min-h-24 bg-brand-bg p-2 ${!inMonth ? 'opacity-35' : ''}`}>
-                      <p className="text-xs font-medium text-white/80">{cell.getDate()}</p>
-                      {event && <p className="mt-2 truncate rounded bg-[var(--color-brand-primary)]/20 px-1.5 py-0.5 text-[10px] text-white">{event.label}</p>}
+                    <div className="flex items-center gap-4">
+                      <div className="relative flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-[var(--color-brand-secondary)]">
+                        <Icon className="h-4 w-4" />
+                        {item.alert && (
+                          <span className="absolute -right-1 -top-1 flex h-3 w-3">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-brand-primary)] opacity-70" />
+                            <span className="relative inline-flex h-3 w-3 rounded-full border border-[var(--color-brand-bg)] bg-[var(--color-brand-primary)]" />
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-[14px] font-bold text-white transition-colors group-hover:text-[var(--color-brand-secondary)]">{item.title}</p>
+                        <p className="text-[11px] font-medium text-white/50">{item.sub}</p>
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {calendarMode !== 'month' && (
-              <div className="space-y-2">
-                {calendarEvents.map((event) => (
-                  <div key={event.date} className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
-                    <p className="text-sm text-white">{event.label}</p>
-                    <span className="text-xs text-white/65">{event.date}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </article>
-
-          <div className="space-y-6">
-            <article className="rounded-xl border border-white/10 bg-brand-surface p-5">
-              <header className="mb-3 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-white">Recent Leave Applications</h2>
-                <div className="flex gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
-                  {(['All', 'Approved', 'Pending', 'Rejected'] as const).map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => setApplicationFilter(status)}
-                      className={`rounded-md px-2 py-1 text-[11px] ${applicationFilter === status ? 'bg-white/15 text-white' : 'text-white/60 hover:text-white'}`}
-                    >
-                      {status}
-                    </button>
-                  ))}
-                </div>
-              </header>
-              <div className="space-y-2">
-                {filteredApplications.map((application) => (
-                  <div key={`${application.name}-${application.from}`} className="rounded-lg border border-white/10 bg-white/5 p-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-semibold text-white">{application.name} - {application.leave}</p>
-                      <span className="rounded-full border border-white/15 px-2 py-0.5 text-xs text-white/80">{application.status}</span>
-                    </div>
-                    <p className="mt-1 text-xs text-white/55">{application.from} to {application.to}</p>
-                  </div>
-                ))}
-              </div>
-            </article>
-
-            <article className="rounded-xl border border-white/10 bg-brand-surface p-5">
-              <header className="mb-3 flex items-center gap-2 text-lg font-semibold text-white">
-                <Megaphone className="h-4 w-4 text-[var(--color-brand-primary)]" /> Announcements
-              </header>
-              <div className="space-y-2">
-                {announcements.map((announcement) => (
-                  <div key={announcement.title} className="rounded-lg border border-white/10 bg-white/5 p-3">
-                    <p className="text-sm font-semibold text-white">{announcement.title}</p>
-                    <p className="mt-1 text-xs text-white/60">{announcement.description}</p>
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="text-[11px] text-white/50">{announcement.date}</span>
-                      <button
-                        onClick={() => {
-                          setAnnouncements((prev) => prev.filter((item) => item.title !== announcement.title));
-                          setLastAction(`Announcement marked done: ${announcement.title}`);
-                        }}
-                        className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[11px] text-white/80 hover:bg-white/10"
-                      >
-                        <Check className="h-3 w-3" /> Mark Read
+                    <div className="flex flex-col items-end gap-2">
+                      <span className="text-[11px] font-medium text-white/45">{item.time}</span>
+                      <button className="rounded border border-white/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 transition-all hover:border-white/20 hover:bg-white/10 hover:text-white">
+                        Action
                       </button>
                     </div>
                   </div>
-                ))}
-              </div>
-            </article>
-          </div>
-        </section>
-      </Reveal>
+                );
+              })}
+            </div>
 
-      <Reveal delay={0.2}>
-        <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <article className="rounded-xl border border-white/10 bg-brand-surface p-5">
-            <h2 className="mb-4 text-lg font-semibold text-white">Attendance Trend</h2>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={attendanceTrend}>
-                  <CartesianGrid stroke="rgba(255,255,255,0.1)" vertical={false} />
-                  <XAxis dataKey="day" stroke="rgba(255,255,255,0.6)" />
-                  <YAxis stroke="rgba(255,255,255,0.6)" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'var(--color-brand-bg)',
-                      border: '1px solid rgba(255,255,255,0.12)',
-                      borderRadius: '10px',
-                      color: 'white',
-                    }}
-                  />
-                  <Bar dataKey="present" fill="var(--color-brand-teal)" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="absent" fill="var(--color-brand-secondary)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </article>
-
-          <article className="rounded-xl border border-white/10 bg-brand-surface p-5">
-            <h2 className="mb-4 text-lg font-semibold text-white">Headcount Breakdown</h2>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={pieData} dataKey="value" nameKey="name" innerRadius={68} outerRadius={95} paddingAngle={3} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'var(--color-brand-bg)',
-                      border: '1px solid rgba(255,255,255,0.12)',
-                      borderRadius: '10px',
-                      color: 'white',
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-2 flex flex-wrap items-center gap-4">
-              {pieData.map((item) => (
-                <div key={item.name} className="flex items-center gap-1 text-xs text-white/70">
-                  <Dot className="h-5 w-5" style={{ color: item.fill }} /> {item.name}
-                </div>
-              ))}
-            </div>
+            <button className="relative z-10 mt-6 w-full rounded-xl border border-white/10 py-3 text-center text-[12px] font-bold text-white/60 transition-all hover:bg-white/5 hover:text-white">
+              View Historical Records
+            </button>
           </article>
         </section>
       </Reveal>
