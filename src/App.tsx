@@ -29,7 +29,7 @@ import { Reveal } from './components/GSAPWrapper';
 import { FloatingNav } from './components/FloatingNav';
 import { DashboardLayout } from './components/DashboardLayout';
 import { Dashboard } from './pages/Dashboard';
-import { HRMDashboard } from './pages/HRMDashboard';
+import { Dashboard as HRMDashboard } from './pages/HRMDashboard';
 import { Projects } from './pages/Projects';
 import { Tasks } from './pages/Tasks';
 import { TaskStages } from './pages/TaskStages';
