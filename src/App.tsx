@@ -42,6 +42,7 @@ import { CalendarView } from './pages/timesheets/CalendarView';
 import { Approvals } from './pages/timesheets/Approvals';
 import { Reports } from './pages/timesheets/Reports';
 import { Meetings } from './pages/Meetings';
+import { Messenger } from './pages/Messenger';
 import { BudgetDashboard } from './pages/budget/BudgetDashboard';
 import { Budgets } from './pages/budget/Budgets';
 import { Expenses } from './pages/budget/Expenses';
@@ -157,6 +158,7 @@ export default function App() {
         <Route path="/app/meetings" element={<DashboardLayout><Meetings /></DashboardLayout>} />
         <Route path="/app/zoom-meetings" element={<DashboardLayout><Meetings /></DashboardLayout>} />
         <Route path="/app/google-meetings" element={<DashboardLayout><Meetings /></DashboardLayout>} />
+        <Route path="/app/messenger" element={<DashboardLayout><Messenger /></DashboardLayout>} />
         
         <Route path="/app/budget/dashboard" element={<DashboardLayout><BudgetDashboard /></DashboardLayout>} />
         <Route path="/app/budget/budgets" element={<DashboardLayout><Budgets /></DashboardLayout>} />
