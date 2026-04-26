@@ -17,6 +17,9 @@ export const employeePrimaryButtonClass =
 export const employeeSecondaryButtonClass =
   'inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white/85 transition-colors hover:bg-white/10';
 
+export const employeeGhostButtonClass =
+  'inline-flex items-center gap-2 rounded-xl border border-white/10 bg-transparent px-4 py-2 text-sm font-semibold text-white/80 transition-colors hover:bg-white/10';
+
 export const employeeTableContainerClass = 'overflow-hidden rounded-2xl border border-white/10 bg-brand-surface';
 
 export function employeeSectionClass(extra?: string) {
@@ -35,6 +38,16 @@ export function employeeStatusPill(status: string) {
       return 'border border-brand-primary/30 bg-brand-primary/20 text-brand-primary';
     case 'Late':
       return 'border border-brand-secondary/30 bg-brand-secondary/20 text-brand-secondary';
+    case 'Review':
+      return 'border border-brand-secondary/30 bg-brand-secondary/20 text-brand-secondary';
+    case 'Blocked':
+    case 'Rejected':
+      return 'border border-red-400/30 bg-red-400/15 text-red-300';
+    case 'Scheduled':
+    case 'Draft':
+      return 'border border-white/20 bg-white/5 text-white/75';
+    case 'Live':
+      return 'border border-brand-primary/40 bg-brand-primary/30 text-brand-primary';
     default:
       return 'border border-white/10 bg-white/5 text-white/80';
   }
