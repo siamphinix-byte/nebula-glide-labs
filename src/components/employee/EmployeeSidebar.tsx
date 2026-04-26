@@ -1,4 +1,4 @@
-import { CalendarCheck2, ChartSpline, Cog, LayoutDashboard, ListChecks, UserRound, LogOut, BriefcaseBusiness } from 'lucide-react';
+import { CalendarCheck2, ChartSpline, Cog, ListChecks, UserRound, LogOut, BriefcaseBusiness } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { clearAuthSession } from '../../lib/authSession';
