@@ -24,7 +24,7 @@ export function EmployeeReportsPage() {
                 <XAxis dataKey="month" stroke="rgba(255,255,255,0.75)" />
                 <YAxis stroke="rgba(255,255,255,0.75)" />
                 <Tooltip contentStyle={{ background: 'var(--color-brand-bg)', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }} />
-                <Bar dataKey="completedTasks" fill="hsl(var(--brand-primary))" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="completedTasks" fill="var(--color-brand-primary)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -39,7 +39,7 @@ export function EmployeeReportsPage() {
                 <XAxis dataKey="month" stroke="rgba(255,255,255,0.75)" />
                 <YAxis stroke="rgba(255,255,255,0.75)" domain={[80, 100]} />
                 <Tooltip contentStyle={{ background: 'var(--color-brand-bg)', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }} />
-                <Bar dataKey="attendance" fill="hsl(var(--brand-teal))" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="attendance" fill="var(--color-brand-teal)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
