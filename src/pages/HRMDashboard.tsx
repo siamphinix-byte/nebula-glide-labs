@@ -1,4 +1,4 @@
-import { ArrowRight, Building2, CalendarClock, ClipboardCheck, Users } from 'lucide-react';
+import { ArrowRight, BadgeDollarSign, Building2, CalendarClock, ClipboardCheck, ShieldCheck, Users } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal, StaggerReveal } from '../components/GSAPWrapper';
@@ -27,6 +27,30 @@ const hrmSections = [
     description: 'Track team structures, utilization, and hiring demand by department.',
     to: '/app/hrm/departments',
     icon: Building2,
+  },
+  {
+    title: 'Shifts',
+    description: 'Configure working shifts and toggle night rotation policies.',
+    to: '/app/hrm/shifts',
+    icon: CalendarClock,
+  },
+  {
+    title: 'Payroll',
+    description: 'Review payroll approvals and monthly paid vs pending status.',
+    to: '/app/hrm/payroll',
+    icon: BadgeDollarSign,
+  },
+  {
+    title: 'Payslips',
+    description: 'Generate and download employee payslips by payroll cycle.',
+    to: '/app/hrm/payslips',
+    icon: ClipboardCheck,
+  },
+  {
+    title: 'Roles',
+    description: 'Manage role-based permissions and membership allocation.',
+    to: '/app/hrm/roles',
+    icon: ShieldCheck,
   },
 ];
 
@@ -63,6 +87,22 @@ export function Dashboard() {
           );
         })}
       </StaggerReveal>
+
+      <Reveal>
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {[
+            { label: 'Total Workforce', value: '120', meta: '+6 this quarter' },
+            { label: 'Pending Leaves', value: '4', meta: 'Needs approval' },
+            { label: 'Open Roles', value: '7', meta: 'Across departments' },
+          ].map((item) => (
+            <article key={item.label} className="rounded-xl border border-white/10 bg-brand-surface p-4">
+              <p className="text-xs uppercase tracking-wide text-white/50">{item.label}</p>
+              <p className="mt-2 text-3xl font-bold text-white">{item.value}</p>
+              <p className="text-xs text-white/55">{item.meta}</p>
+            </article>
+          ))}
+        </section>
+      </Reveal>
     </div>
   );
 }
