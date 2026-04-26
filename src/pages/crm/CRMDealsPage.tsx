@@ -77,7 +77,10 @@ export function CRMDealsPage() {
                     borderRadius: '10px',
                     color: 'white',
                   }}
-                  formatter={(value: number) => `$${value.toLocaleString()}`}
+                  formatter={(value) => {
+                    const numericValue = typeof value === 'number' ? value : Number(value ?? 0);
+                    return `$${numericValue.toLocaleString()}`;
+                  }}
                 />
                 <Bar dataKey="value" fill="var(--color-brand-primary)" radius={[4, 4, 0, 0]} />
               </BarChart>
