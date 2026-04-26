@@ -1,29 +1,38 @@
-import { CalendarCheck2, ChartNoAxesCombined, ListChecks, Timer } from 'lucide-react';
+import { CalendarCheck2, ChartNoAxesCombined, ListChecks, Timer, Video, CalendarDays, PlusCircle } from 'lucide-react';
 import React from 'react';
 import { Reveal, StaggerReveal } from '../../components/GSAPWrapper';
-import { employeeSummary, employeeTasks, leaveRequests, attendanceLog } from './employeeData';
-import { employeePageClass, employeeSectionClass, employeeStatusPill, employeeSubtitleClass, employeeTitleClass } from './employeeShared';
+import { employeeSummary, employeeTasks, leaveRequests, attendanceLog, employeeMeetings } from './employeeData';
+import { employeePageClass, employeeSectionClass, employeeStatusPill, employeeSubtitleClass, employeeTitleClass, employeePrimaryButtonClass, employeeGhostButtonClass } from './employeeShared';
+import { Link } from 'react-router-dom';
 
 export function EmployeeDashboardPage() {
   const completed = employeeTasks.filter((task) => task.status === 'Completed').length;
   const pendingLeaves = leaveRequests.filter((item) => item.status === 'Pending').length;
   const presentDays = attendanceLog.filter((item) => item.status === 'Present').length;
+  const liveMeetings = employeeMeetings.filter((item) => item.status === 'Live').length;
 
   return (
     <div className={employeePageClass}>
       <Reveal direction="down">
-        <section className={employeeSectionClass()}>
-          <h1 className={employeeTitleClass}>Employee Dashboard</h1>
-          <p className={employeeSubtitleClass}>Welcome back, {employeeSummary.name}. Your personal workspace is isolated from executive operations.</p>
+        <section className={employeeSectionClass('flex flex-wrap items-start justify-between gap-3')}>
+          <div>
+            <h1 className={employeeTitleClass}>Employee Dashboard</h1>
+            <p className={employeeSubtitleClass}>Welcome back, {employeeSummary.name}. Your personal workspace is isolated from executive operations.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link to="/employee/meetings" className={employeePrimaryButtonClass}><Video className="h-4 w-4" />Join Meeting</Link>
+            <Link to="/employee/tasks" className={employeeGhostButtonClass}><PlusCircle className="h-4 w-4" />Quick Task</Link>
+          </div>
         </section>
       </Reveal>
 
-      <StaggerReveal className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <StaggerReveal className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         {[
           { label: 'Open Tasks', value: employeeTasks.length, icon: ListChecks },
           { label: 'Completed', value: completed, icon: ChartNoAxesCombined },
           { label: 'Pending Leave', value: pendingLeaves, icon: CalendarCheck2 },
           { label: 'Present Days', value: presentDays, icon: Timer },
+          { label: 'Live Meetings', value: liveMeetings, icon: CalendarDays },
         ].map((item) => {
           const Icon = item.icon;
           return (
