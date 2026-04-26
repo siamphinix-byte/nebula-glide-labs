@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FolderOpen, MessageSquare, Smartphone, CheckSquare, Bug, ChevronDown, PanelLeftClose, PanelLeftOpen, CalendarDays, Users } from 'lucide-react';
+import { LayoutDashboard, FolderOpen, MessageSquare, Smartphone, CheckSquare, Bug, ChevronDown, PanelLeftClose, PanelLeftOpen, CalendarDays, Users, CalendarRange, BadgeDollarSign, ReceiptText, ShieldCheck } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: boolean; onToggle?: () => void }) {
@@ -69,6 +69,10 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
                     <NavLink to="/app/hrm/leave" label="Leave" active={isActive('/app/hrm/leave')} isSub isCollapsed={isCollapsed} />
                     <NavLink to="/app/hrm/attendance" label="Attendance" active={isActive('/app/hrm/attendance')} isSub isCollapsed={isCollapsed} />
                     <NavLink to="/app/hrm/departments" label="Departments" active={isActive('/app/hrm/departments')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/hrm/shifts" icon={CalendarRange} label="Shifts" active={isActive('/app/hrm/shifts')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/hrm/payroll" icon={BadgeDollarSign} label="Payroll" active={isActive('/app/hrm/payroll')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/hrm/payslips" icon={ReceiptText} label="Payslips" active={isActive('/app/hrm/payslips')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/hrm/roles" icon={ShieldCheck} label="Roles" active={isActive('/app/hrm/roles')} isSub isCollapsed={isCollapsed} />
                   </div>
                 )}
               </div>
