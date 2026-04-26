@@ -1,7 +1,7 @@
 import { ArrowRight, Building2, CalendarClock, ClipboardCheck, Users } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Reveal, StaggerReveal } from '@/components/GSAPWrapper';
+import { Reveal, StaggerReveal } from './components/GSAPWrapper';
 
 const hrmSections = [
   {
