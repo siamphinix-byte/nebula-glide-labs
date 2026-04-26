@@ -1,7 +1,7 @@
 import { CalendarDays } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { Reveal, StaggerReveal } from '@/components/GSAPWrapper';
+import { Reveal, StaggerReveal } from '../../components/GSAPWrapper';
 import { attendanceLog, attendanceOverview, type AttendanceStatus } from './hrmData';
 import { sectionCardClassName, statusPillClassName } from './HRMShared';
 
