@@ -79,6 +79,28 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
                 )}
               </div>
             )}
+            {isCollapsed ? (
+              <NavLink to="/app/crm/leads" icon={Handshake} label="CRM" active={location.pathname.includes('/app/crm')} isCollapsed={isCollapsed} />
+            ) : (
+              <div>
+                <button
+                  onClick={() => setCrmOpen(!crmOpen)}
+                  className={`flex items-center w-full justify-between px-4 mx-4 pr-8 h-10 rounded-xl transition-all duration-300 font-medium group ${location.pathname.includes('/app/crm') ? 'text-white' : 'text-white/40 hover:bg-white/5 hover:text-white'}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Handshake className={`w-4 h-4 flex-shrink-0 transition-colors ${location.pathname.includes('/app/crm') ? 'text-[#bbf600]' : 'text-white/30 group-hover:text-white/70'}`} />
+                    <span className="text-[13px]">CRM</span>
+                  </div>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${crmOpen ? '' : '-rotate-90'}`} />
+                </button>
+                {crmOpen && (
+                  <div className="ml-8 mt-1 space-y-1 border-l border-white/5 pl-2">
+                    <NavLink to="/app/crm/leads" label="Manage Leads" active={isActive('/app/crm/leads')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/crm/deals" label="Manage Deals" active={isActive('/app/crm/deals')} isSub isCollapsed={isCollapsed} />
+                  </div>
+                )}
+              </div>
+            )}
             <NavLink to="/app/projects" icon={FolderOpen} label="Projects" active={isActive('/app/projects')} isCollapsed={isCollapsed} />
             
             {/* Tasks Menu */}
