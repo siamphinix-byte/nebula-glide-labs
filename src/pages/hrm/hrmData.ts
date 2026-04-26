@@ -1,6 +1,7 @@
 export type EmployeeStatus = 'Active' | 'On Leave' | 'Remote' | 'Probation';
 export type LeaveStatus = 'Pending' | 'Approved' | 'Rejected';
 export type AttendanceStatus = 'Present' | 'Late' | 'Remote' | 'Absent';
+export type PayrollStatus = 'Paid' | 'Pending';
 
 export interface Employee {
   id: string;
@@ -127,4 +128,43 @@ export const departments = [
   { id: 'D-12', name: 'HR', lead: 'Daniel Thompson', members: 14, openRoles: 2, utilization: 79 },
   { id: 'D-13', name: 'Client Success', lead: 'John Smith', members: 25, openRoles: 2, utilization: 91 },
   { id: 'D-14', name: 'Operations', lead: 'Michael Brown', members: 21, openRoles: 1, utilization: 86 },
+];
+
+export const shifts = [
+  { id: 'SH-301', name: 'Standard Morning', start: '08:00 AM', end: '04:30 PM', isNight: false, createdBy: 'Julian D.' },
+  { id: 'SH-302', name: 'Creative Swing', start: '11:00 AM', end: '07:30 PM', isNight: false, createdBy: 'Elena R.' },
+  { id: 'SH-303', name: 'Support Night', start: '10:00 PM', end: '06:00 AM', isNight: true, createdBy: 'Mila D.' },
+  { id: 'SH-304', name: 'Hybrid Flex', start: '09:30 AM', end: '06:30 PM', isNight: false, createdBy: 'Ariana W.' },
+  { id: 'SH-305', name: 'Ops Rotation', start: '06:00 PM', end: '02:00 AM', isNight: true, createdBy: 'Robert T.' },
+];
+
+export const payrollSummary = [
+  { month: 'Jan', paid: 368, pending: 18 },
+  { month: 'Feb', paid: 372, pending: 14 },
+  { month: 'Mar', paid: 381, pending: 21 },
+  { month: 'Apr', paid: 390, pending: 16 },
+  { month: 'May', paid: 401, pending: 12 },
+  { month: 'Jun', paid: 407, pending: 11 },
+];
+
+export const payrollApprovals = [
+  { id: 'PR-901', employee: 'Ariana Wilson', department: 'Design', gross: 8500, net: 7225, month: 'Oct 2026', status: 'Paid' as PayrollStatus },
+  { id: 'PR-902', employee: 'Christopher Lee', department: 'Engineering', gross: 9200, net: 8040, month: 'Oct 2026', status: 'Pending' as PayrollStatus },
+  { id: 'PR-903', employee: 'Sophia Martin', department: 'Client Success', gross: 7800, net: 6790, month: 'Oct 2026', status: 'Paid' as PayrollStatus },
+  { id: 'PR-904', employee: 'Emma Johnson', department: 'HR', gross: 6900, net: 6010, month: 'Oct 2026', status: 'Pending' as PayrollStatus },
+];
+
+export const payslips = [
+  { id: 'PS-1101', employee: 'Helena Hills', role: 'Senior Designer', department: 'Design', month: 'Oct 2026', gross: 8500, net: 7225 },
+  { id: 'PS-1102', employee: 'Julian Wan', role: 'Tech Lead', department: 'Engineering', month: 'Oct 2026', gross: 12000, net: 10200 },
+  { id: 'PS-1103', employee: 'Aria Mason', role: 'HR Manager', department: 'HR', month: 'Oct 2026', gross: 7600, net: 6620 },
+  { id: 'PS-1104', employee: 'Logan Reed', role: 'Project Manager', department: 'Operations', month: 'Sep 2026', gross: 9800, net: 8330 },
+  { id: 'PS-1105', employee: 'Nora Jenkins', role: 'Design Lead', department: 'Design', month: 'Sep 2026', gross: 11100, net: 9435 },
+];
+
+export const roleCatalog = [
+  { id: 'RL-01', name: 'Administrator', key: 'role_admin_system', description: 'Full system access', permissions: 142, members: 6 },
+  { id: 'RL-02', name: 'HR Manager', key: 'role_hr_manager', description: 'Employee and payroll access', permissions: 48, members: 9 },
+  { id: 'RL-03', name: 'Project Manager', key: 'role_project_manager', description: 'Project and team assignment control', permissions: 56, members: 12 },
+  { id: 'RL-04', name: 'Employee', key: 'role_employee_self', description: 'Default self-service access', permissions: 18, members: 124 },
 ];
