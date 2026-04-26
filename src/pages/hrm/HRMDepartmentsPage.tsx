@@ -1,6 +1,6 @@
 import { Building2, Layers, UsersRound } from 'lucide-react';
 import React from 'react';
-import { Reveal, StaggerReveal } from '@/components/GSAPWrapper';
+import { Reveal, StaggerReveal } from '../../components/GSAPWrapper';
 import { departments } from './hrmData';
 import { sectionCardClassName } from './HRMShared';
 
