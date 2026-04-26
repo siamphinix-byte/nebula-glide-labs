@@ -1,4 +1,4 @@
-import { CalendarCheck2, ChartSpline, Cog, LayoutDashboard, ListChecks, UserRound, LogOut, BriefcaseBusiness } from 'lucide-react';
+import { CalendarCheck2, ChartSpline, Cog, LayoutDashboard, ListChecks, UserRound, LogOut, BriefcaseBusiness, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { clearAuthSession } from '../../lib/authSession';
@@ -23,24 +23,24 @@ export function EmployeeSidebar({ isCollapsed, onToggle }: { isCollapsed: boolea
   };
 
   return (
-    <aside className={`fixed left-6 top-6 bottom-6 z-50 flex flex-col rounded-[2rem] border border-border bg-brand-bg/95 py-6 shadow-2xl backdrop-blur-xl transition-all duration-300 ${isCollapsed ? 'w-[80px]' : 'w-[250px]'}`}>
+    <aside className={`fixed left-6 top-6 bottom-6 z-50 flex flex-col rounded-[2rem] border border-white/10 bg-brand-bg/95 py-6 shadow-2xl backdrop-blur-xl transition-all duration-300 ${isCollapsed ? 'w-[80px]' : 'w-[250px]'}`}>
       <div className={`mb-8 flex items-center ${isCollapsed ? 'justify-center px-0' : 'justify-between px-8'}`}>
         <Link to="/employee/dashboard" className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary font-bold text-primary-foreground">E</div>
-          {!isCollapsed && <h1 className="text-lg font-bold leading-none text-foreground">Employee Panel</h1>}
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary font-bold text-white">E</div>
+          {!isCollapsed && <h1 className="text-lg font-bold leading-none text-white">Employee Panel</h1>}
         </Link>
       </div>
 
       <button
         onClick={onToggle}
-        className="absolute -right-3 top-10 rounded-full border border-border bg-brand-surface p-1 text-foreground shadow-lg transition-colors hover:bg-brand-muted"
+        className="absolute -right-3 top-10 rounded-full border border-white/10 bg-brand-surface p-1 text-white shadow-lg transition-colors hover:bg-white/10"
         aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
-        <span className="block text-xs font-semibold">{isCollapsed ? '›' : '‹'}</span>
+        {isCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
       </button>
 
       <div className="flex-1 space-y-1 overflow-y-auto px-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        {!isCollapsed && <span className="mb-2 block px-3 text-[10px] font-bold uppercase tracking-widest text-foreground/40">Employee Space</span>}
+        {!isCollapsed && <span className="mb-2 block px-3 text-[10px] font-bold uppercase tracking-widest text-white/30">Employee Space</span>}
         {items.map((item) => {
           const Icon = item.icon;
           const active = location.pathname === item.to;
@@ -49,19 +49,19 @@ export function EmployeeSidebar({ isCollapsed, onToggle }: { isCollapsed: boolea
               key={item.to}
               to={item.to}
               title={isCollapsed ? item.label : ''}
-              className={`group flex items-center gap-3 rounded-xl transition-all ${isCollapsed ? 'mx-auto h-12 w-12 justify-center' : 'h-10 px-3'} ${active ? 'border border-border bg-brand-surface text-foreground' : 'text-foreground/60 hover:bg-brand-muted hover:text-foreground'}`}
+              className={`group flex items-center gap-3 rounded-xl transition-all ${isCollapsed ? 'mx-auto h-12 w-12 justify-center' : 'h-10 px-3'} ${active ? 'border border-white/15 bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
             >
-              <Icon className={`h-4 w-4 ${active ? 'text-brand-primary' : 'text-foreground/50 group-hover:text-foreground/80'}`} />
+              <Icon className={`h-4 w-4 ${active ? 'text-brand-primary' : 'text-white/40 group-hover:text-white/80'}`} />
               {!isCollapsed && <span className="text-[13px] font-medium">{item.label}</span>}
             </Link>
           );
         })}
       </div>
 
-      <div className="mx-4 mt-4 rounded-xl border border-border bg-brand-surface p-2">
+      <div className="mx-4 mt-4 rounded-xl border border-white/10 bg-brand-surface p-2">
         <button
           onClick={logout}
-          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-border bg-transparent text-xs font-semibold text-foreground/70 transition-colors hover:bg-brand-muted"
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-white/10 bg-transparent text-xs font-semibold text-white/70 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
         >
           <LogOut className="h-4 w-4" />
           {!isCollapsed && 'Logout'}
