@@ -1,6 +1,6 @@
 import { Search, SlidersHorizontal, UserRound } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
-import { Reveal, StaggerReveal } from '@/components/GSAPWrapper';
+import { Reveal, StaggerReveal } from '../../components/GSAPWrapper';
 import { employees, type Employee, type EmployeeStatus } from './hrmData';
 import { sectionCardClassName, statusPillClassName } from './HRMShared';
 
