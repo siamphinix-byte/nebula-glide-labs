@@ -56,6 +56,12 @@ import { HRMShiftsPage } from './pages/hrm/HRMShiftsPage';
 import { HRMPayrollPage } from './pages/hrm/HRMPayrollPage';
 import { HRMPayslipsPage } from './pages/hrm/HRMPayslipsPage';
 import { HRMRolesPage } from './pages/hrm/HRMRolesPage';
+import { HRMComplaintsPage } from './pages/hrm/HRMComplaintsPage';
+import { HRMWarningsPage } from './pages/hrm/HRMWarningsPage';
+import { HRMTerminationsPage } from './pages/hrm/HRMTerminationsPage';
+import { HRMAnnouncementsPage } from './pages/hrm/HRMAnnouncementsPage';
+import { HRMEventsPage } from './pages/hrm/HRMEventsPage';
+import { HRMDocumentsPage } from './pages/hrm/HRMDocumentsPage';
 import { CRMLeadsPage } from './pages/crm/CRMLeadsPage';
 import { CRMDealsPage } from './pages/crm/CRMDealsPage';
 import { ToDos } from './pages/ToDos';
@@ -161,6 +167,12 @@ export default function App() {
         <Route path="/app/hrm/payroll" element={<DashboardLayout><HRMPayrollPage /></DashboardLayout>} />
         <Route path="/app/hrm/payslips" element={<DashboardLayout><HRMPayslipsPage /></DashboardLayout>} />
         <Route path="/app/hrm/roles" element={<DashboardLayout><HRMRolesPage /></DashboardLayout>} />
+        <Route path="/app/hrm/complaints" element={<DashboardLayout><HRMComplaintsPage /></DashboardLayout>} />
+        <Route path="/app/hrm/warnings" element={<DashboardLayout><HRMWarningsPage /></DashboardLayout>} />
+        <Route path="/app/hrm/terminations" element={<DashboardLayout><HRMTerminationsPage /></DashboardLayout>} />
+        <Route path="/app/hrm/announcements" element={<DashboardLayout><HRMAnnouncementsPage /></DashboardLayout>} />
+        <Route path="/app/hrm/events" element={<DashboardLayout><HRMEventsPage /></DashboardLayout>} />
+        <Route path="/app/hrm/documents" element={<DashboardLayout><HRMDocumentsPage /></DashboardLayout>} />
         <Route path="/app/crm/leads" element={<DashboardLayout><CRMLeadsPage /></DashboardLayout>} />
         <Route path="/app/crm/deals" element={<DashboardLayout><CRMDealsPage /></DashboardLayout>} />
         <Route path="/app/projects" element={<DashboardLayout><Projects /></DashboardLayout>} />
