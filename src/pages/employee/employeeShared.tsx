@@ -42,7 +42,7 @@ export function employeeStatusPill(status: string) {
       return 'border border-brand-secondary/30 bg-brand-secondary/20 text-brand-secondary';
     case 'Blocked':
     case 'Rejected':
-      return 'border border-red-400/30 bg-red-400/15 text-red-300';
+      return 'border border-white/20 bg-white/10 text-white/80';
     case 'Scheduled':
     case 'Draft':
       return 'border border-white/20 bg-white/5 text-white/75';
