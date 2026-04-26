@@ -81,6 +81,15 @@ import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsCondition } from './pages/TermsCondition';
 import { Quote } from './pages/Quote';
 import NotFound from './pages/NotFound';
+import { EmployeeLayout } from './components/employee/EmployeeLayout';
+import { EmployeeRouteGuard } from './components/employee/EmployeeRouteGuard';
+import { EmployeeDashboardPage } from './pages/employee/EmployeeDashboardPage';
+import { EmployeeProfilePage } from './pages/employee/EmployeeProfilePage';
+import { EmployeeTasksPage } from './pages/employee/EmployeeTasksPage';
+import { EmployeeLeavePage } from './pages/employee/EmployeeLeavePage';
+import { EmployeeAttendancePage } from './pages/employee/EmployeeAttendancePage';
+import { EmployeeReportsPage } from './pages/employee/EmployeeReportsPage';
+import { EmployeeSettingsPage } from './pages/employee/EmployeeSettingsPage';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -208,6 +217,15 @@ export default function App() {
 
         <Route path="/app/clients" element={<DashboardLayout><Clients /></DashboardLayout>} />
         <Route path="/app/project-board" element={<DashboardLayout><ProjectBoard /></DashboardLayout>} />
+
+        {/* EMPLOYEE PANEL (ISOLATED FROM EXECUTIVE /app/*) */}
+        <Route path="/employee/dashboard" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeDashboardPage /></EmployeeLayout></EmployeeRouteGuard>} />
+        <Route path="/employee/profile" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeProfilePage /></EmployeeLayout></EmployeeRouteGuard>} />
+        <Route path="/employee/tasks" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeTasksPage /></EmployeeLayout></EmployeeRouteGuard>} />
+        <Route path="/employee/leave" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeLeavePage /></EmployeeLayout></EmployeeRouteGuard>} />
+        <Route path="/employee/attendance" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeAttendancePage /></EmployeeLayout></EmployeeRouteGuard>} />
+        <Route path="/employee/reports" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeReportsPage /></EmployeeLayout></EmployeeRouteGuard>} />
+        <Route path="/employee/settings" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeSettingsPage /></EmployeeLayout></EmployeeRouteGuard>} />
 
         <Route path="*" element={<PublicLayout><NotFound /></PublicLayout>} />
       </Routes>
