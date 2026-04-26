@@ -65,6 +65,10 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
                 {hrmOpen && (
                   <div className="ml-8 mt-1 space-y-1 border-l border-white/5 pl-2">
                     <NavLink to="/app/hrm/dashboard" label="HRM Dashboard" active={isActive('/app/hrm/dashboard')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/hrm/employees" label="Employees" active={isActive('/app/hrm/employees')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/hrm/leave" label="Leave" active={isActive('/app/hrm/leave')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/hrm/attendance" label="Attendance" active={isActive('/app/hrm/attendance')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/hrm/departments" label="Departments" active={isActive('/app/hrm/departments')} isSub isCollapsed={isCollapsed} />
                   </div>
                 )}
               </div>
