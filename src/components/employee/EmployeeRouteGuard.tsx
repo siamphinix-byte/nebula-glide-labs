@@ -13,10 +13,12 @@ function readRole(): string | null {
 }
 
 export function EmployeeRouteGuard({ children }: { children: React.ReactNode }) {
-  const token = localStorage.getItem('token');
+  const rawUser = localStorage.getItem('user');
+  const token = localStorage.getItem('token') ?? localStorage.getItem('access_token');
   const role = readRole();
+  const isAuthenticated = Boolean(token || rawUser);
 
-  if (!token) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
