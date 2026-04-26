@@ -75,6 +75,12 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
                     <NavLink to="/app/hrm/payroll" icon={BadgeDollarSign} label="Payroll" active={isActive('/app/hrm/payroll')} isSub isCollapsed={isCollapsed} />
                     <NavLink to="/app/hrm/payslips" icon={ReceiptText} label="Payslips" active={isActive('/app/hrm/payslips')} isSub isCollapsed={isCollapsed} />
                     <NavLink to="/app/hrm/roles" icon={ShieldCheck} label="Roles" active={isActive('/app/hrm/roles')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/hrm/complaints" label="Complaints" active={isActive('/app/hrm/complaints')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/hrm/warnings" label="Warnings" active={isActive('/app/hrm/warnings')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/hrm/terminations" label="Terminations" active={isActive('/app/hrm/terminations')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/hrm/announcements" label="Announcements" active={isActive('/app/hrm/announcements')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/hrm/events" label="Events" active={isActive('/app/hrm/events')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/hrm/documents" label="Documents" active={isActive('/app/hrm/documents')} isSub isCollapsed={isCollapsed} />
                   </div>
                 )}
               </div>
