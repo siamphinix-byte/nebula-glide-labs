@@ -2,6 +2,7 @@ import { CheckCheck, Clock3, Search, X } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { Reveal, StaggerReveal } from '../../components/GSAPWrapper';
 import { leaveRequests, type LeaveStatus } from './hrmData';
+import { HRMHorizontalScroll } from './HRMHorizontalScroll';
 import { sectionCardClassName, statusPillClassName } from './HRMShared';
 
 const leaveBalances = [
@@ -92,7 +93,7 @@ export function HRMLeavePage() {
             </div>
           </div>
 
-          <div className="overflow-auto">
+          <HRMHorizontalScroll>
             <table className="w-full min-w-[860px] text-sm">
               <thead>
                 <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wide text-white/55">
@@ -139,7 +140,7 @@ export function HRMLeavePage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </HRMHorizontalScroll>
         </section>
       </Reveal>
     </div>
