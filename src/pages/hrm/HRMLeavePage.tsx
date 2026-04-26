@@ -1,6 +1,6 @@
 import { CheckCheck, Clock3, Search, X } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
-import { Reveal, StaggerReveal } from '@/components/GSAPWrapper';
+import { Reveal, StaggerReveal } from '../../components/GSAPWrapper';
 import { leaveRequests, type LeaveStatus } from './hrmData';
 import { sectionCardClassName, statusPillClassName } from './HRMShared';
 
