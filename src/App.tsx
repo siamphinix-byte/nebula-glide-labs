@@ -52,6 +52,10 @@ import { HRMEmployeesPage } from './pages/hrm/HRMEmployeesPage';
 import { HRMLeavePage } from './pages/hrm/HRMLeavePage';
 import { HRMAttendancePage } from './pages/hrm/HRMAttendancePage';
 import { HRMDepartmentsPage } from './pages/hrm/HRMDepartmentsPage';
+import { HRMShiftsPage } from './pages/hrm/HRMShiftsPage';
+import { HRMPayrollPage } from './pages/hrm/HRMPayrollPage';
+import { HRMPayslipsPage } from './pages/hrm/HRMPayslipsPage';
+import { HRMRolesPage } from './pages/hrm/HRMRolesPage';
 import { ToDos } from './pages/ToDos';
 import { ProjectReports } from './pages/ProjectReports';
 import { MediaLibrary } from './pages/MediaLibrary';
@@ -151,6 +155,10 @@ export default function App() {
         <Route path="/app/hrm/leave" element={<DashboardLayout><HRMLeavePage /></DashboardLayout>} />
         <Route path="/app/hrm/attendance" element={<DashboardLayout><HRMAttendancePage /></DashboardLayout>} />
         <Route path="/app/hrm/departments" element={<DashboardLayout><HRMDepartmentsPage /></DashboardLayout>} />
+        <Route path="/app/hrm/shifts" element={<DashboardLayout><HRMShiftsPage /></DashboardLayout>} />
+        <Route path="/app/hrm/payroll" element={<DashboardLayout><HRMPayrollPage /></DashboardLayout>} />
+        <Route path="/app/hrm/payslips" element={<DashboardLayout><HRMPayslipsPage /></DashboardLayout>} />
+        <Route path="/app/hrm/roles" element={<DashboardLayout><HRMRolesPage /></DashboardLayout>} />
         <Route path="/app/projects" element={<DashboardLayout><Projects /></DashboardLayout>} />
         <Route path="/app/tasks" element={<DashboardLayout><Tasks /></DashboardLayout>} />
         <Route path="/app/task-stages" element={<DashboardLayout><TaskStages /></DashboardLayout>} />
