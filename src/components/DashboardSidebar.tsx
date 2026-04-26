@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FolderOpen, MessageSquare, Smartphone, CheckSquare, Bug, ChevronDown, PanelLeftClose, PanelLeftOpen, CalendarDays, Users, CalendarRange, BadgeDollarSign, ReceiptText, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, FolderOpen, MessageSquare, Smartphone, CheckSquare, Bug, ChevronDown, PanelLeftClose, PanelLeftOpen, CalendarDays, Users, CalendarRange, BadgeDollarSign, ReceiptText, ShieldCheck, Handshake } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: boolean; onToggle?: () => void }) {
@@ -11,6 +11,7 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
   const [timesheetsOpen, setTimesheetsOpen] = useState(location.pathname.includes('/app/timesheet'));
   const [budgetOpen, setBudgetOpen] = useState(location.pathname.includes('/app/budget'));
   const [hrmOpen, setHrmOpen] = useState(location.pathname.includes('/app/hrm'));
+  const [crmOpen, setCrmOpen] = useState(location.pathname.includes('/app/crm'));
 
   useEffect(() => {
     if (location.pathname.includes('/app/task')) setTasksOpen(true);
@@ -18,6 +19,7 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
     if (location.pathname.includes('/app/timesheet')) setTimesheetsOpen(true);
     if (location.pathname.includes('/app/budget')) setBudgetOpen(true);
     if (location.pathname.includes('/app/hrm')) setHrmOpen(true);
+    if (location.pathname.includes('/app/crm')) setCrmOpen(true);
   }, [location.pathname]);
 
   return (
