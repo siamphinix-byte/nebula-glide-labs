@@ -2,7 +2,7 @@ import { ReactNode, useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { DashboardSidebar } from './DashboardSidebar';
 import { DashboardTopNav } from './DashboardTopNav';
-import { isAuthenticated, readRole } from '../lib/authSession';
+import { readRole } from '../lib/authSession';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -24,10 +24,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" replace />;
-  }
 
   if (role === 'employee') {
     return <Navigate to="/employee/dashboard" replace />;
