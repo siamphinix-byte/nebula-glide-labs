@@ -168,3 +168,53 @@ export const roleCatalog = [
   { id: 'RL-03', name: 'Project Manager', key: 'role_project_manager', description: 'Project and team assignment control', permissions: 56, members: 12 },
   { id: 'RL-04', name: 'Employee', key: 'role_employee_self', description: 'Default self-service access', permissions: 18, members: 124 },
 ];
+
+export type ComplaintStatus = 'Open' | 'In Review' | 'Resolved' | 'Closed';
+export type WarningStatus = 'Issued' | 'Acknowledged' | 'Escalated' | 'Closed';
+export type TerminationStatus = 'Pending Review' | 'Approved' | 'In Offboarding' | 'Completed';
+export type AnnouncementStatus = 'Draft' | 'Scheduled' | 'Published';
+export type EventStatus = 'Upcoming' | 'Ongoing' | 'Completed' | 'Cancelled';
+
+export const complaints = [
+  { id: 'CP-401', employee: 'Mila Davis', department: 'HR', category: 'Workplace Conduct', priority: 'High', status: 'In Review' as ComplaintStatus, reportedOn: '2026-04-14', assignee: 'Emma Johnson' },
+  { id: 'CP-402', employee: 'David Wilson', department: 'Engineering', category: 'Policy Violation', priority: 'Medium', status: 'Open' as ComplaintStatus, reportedOn: '2026-04-18', assignee: 'Daniel Thompson' },
+  { id: 'CP-403', employee: 'Christopher Lee', department: 'Engineering', category: 'Harassment', priority: 'High', status: 'Resolved' as ComplaintStatus, reportedOn: '2026-04-11', assignee: 'Emma Johnson' },
+  { id: 'CP-404', employee: 'Ariana Wilson', department: 'Design', category: 'Payroll Dispute', priority: 'Low', status: 'Closed' as ComplaintStatus, reportedOn: '2026-04-07', assignee: 'Mila Davis' },
+  { id: 'CP-405', employee: 'Sophia Martin', department: 'Client Success', category: 'Manager Feedback', priority: 'Medium', status: 'In Review' as ComplaintStatus, reportedOn: '2026-04-20', assignee: 'Daniel Thompson' },
+];
+
+export const warnings = [
+  { id: 'WR-2201', employee: 'David Wilson', department: 'Engineering', reason: 'Repeated late check-in', severity: 'Medium', status: 'Issued' as WarningStatus, issuedOn: '2026-04-10', reviewer: 'Robert Taylor' },
+  { id: 'WR-2202', employee: 'Mila Davis', department: 'HR', reason: 'Policy documentation gap', severity: 'Low', status: 'Acknowledged' as WarningStatus, issuedOn: '2026-04-09', reviewer: 'Daniel Thompson' },
+  { id: 'WR-2203', employee: 'Christopher Lee', department: 'Engineering', reason: 'Security protocol bypass', severity: 'High', status: 'Escalated' as WarningStatus, issuedOn: '2026-04-17', reviewer: 'Robert Taylor' },
+  { id: 'WR-2204', employee: 'Emma Johnson', department: 'HR', reason: 'Incomplete leave audit', severity: 'Low', status: 'Closed' as WarningStatus, issuedOn: '2026-04-05', reviewer: 'Daniel Thompson' },
+];
+
+export const terminations = [
+  { id: 'TR-801', employee: 'Liam Scott', department: 'Operations', reason: 'Performance', noticeDate: '2026-04-01', lastWorkingDay: '2026-04-30', status: 'In Offboarding' as TerminationStatus, owner: 'Emma Johnson' },
+  { id: 'TR-802', employee: 'Noah Patel', department: 'Engineering', reason: 'Resignation', noticeDate: '2026-04-06', lastWorkingDay: '2026-05-06', status: 'Approved' as TerminationStatus, owner: 'Daniel Thompson' },
+  { id: 'TR-803', employee: 'Ava Brooks', department: 'Client Success', reason: 'Policy Breach', noticeDate: '2026-04-13', lastWorkingDay: '2026-04-28', status: 'Pending Review' as TerminationStatus, owner: 'Emma Johnson' },
+  { id: 'TR-804', employee: 'Ethan King', department: 'Design', reason: 'Role Redundancy', noticeDate: '2026-03-20', lastWorkingDay: '2026-04-20', status: 'Completed' as TerminationStatus, owner: 'Mila Davis' },
+];
+
+export const announcements = [
+  { id: 'AN-5101', title: 'AI-generated summaries now available', audience: 'All Employees', category: 'Product Update', publishedOn: '2026-04-19', status: 'Published' as AnnouncementStatus, engagement: 82 },
+  { id: 'AN-5102', title: 'Quarterly policy compliance briefing', audience: 'Managers', category: 'Policy', publishedOn: '2026-04-24', status: 'Scheduled' as AnnouncementStatus, engagement: 0 },
+  { id: 'AN-5103', title: 'Updated remote work reimbursement flow', audience: 'Remote Teams', category: 'Finance', publishedOn: '2026-04-16', status: 'Published' as AnnouncementStatus, engagement: 74 },
+  { id: 'AN-5104', title: 'HR helpdesk SLA improvements', audience: 'All Employees', category: 'Operations', publishedOn: '2026-04-28', status: 'Draft' as AnnouncementStatus, engagement: 0 },
+];
+
+export const hrmEvents = [
+  { id: 'EV-9301', title: 'Leadership town hall', owner: 'Daniel Thompson', category: 'Townhall', date: '2026-05-02', attendees: 120, status: 'Upcoming' as EventStatus },
+  { id: 'EV-9302', title: 'Compliance workshop', owner: 'Emma Johnson', category: 'Training', date: '2026-04-26', attendees: 48, status: 'Ongoing' as EventStatus },
+  { id: 'EV-9303', title: 'New hire onboarding week', owner: 'Mila Davis', category: 'Onboarding', date: '2026-04-15', attendees: 36, status: 'Completed' as EventStatus },
+  { id: 'EV-9304', title: 'Cross-team policy Q&A', owner: 'Daniel Thompson', category: 'Policy', date: '2026-04-10', attendees: 22, status: 'Cancelled' as EventStatus },
+];
+
+export const hrmDocuments = [
+  { id: 'DOC-1001', name: 'Employee Code of Conduct.pdf', category: 'Policy', owner: 'HR Team', access: 'Internal', updatedOn: '2026-04-12', downloads: 132 },
+  { id: 'DOC-1002', name: 'Onboarding Checklist v3.xlsx', category: 'Onboarding', owner: 'People Ops', access: 'Managers', updatedOn: '2026-04-20', downloads: 76 },
+  { id: 'DOC-1003', name: 'Termination Offboarding SOP.docx', category: 'Termination', owner: 'HR Compliance', access: 'HR Only', updatedOn: '2026-04-18', downloads: 41 },
+  { id: 'DOC-1004', name: 'Warning Escalation Matrix.pdf', category: 'Disciplinary', owner: 'HR Compliance', access: 'Internal', updatedOn: '2026-04-09', downloads: 64 },
+  { id: 'DOC-1005', name: 'Annual Leave Policy 2026.pdf', category: 'Leave', owner: 'People Ops', access: 'All Employees', updatedOn: '2026-03-30', downloads: 201 },
+];
