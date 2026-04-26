@@ -1,4 +1,4 @@
-import { CalendarCheck2, ChartSpline, Cog, LayoutDashboard, ListChecks, UserRound, LogOut, BriefcaseBusiness, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { CalendarCheck2, ChartSpline, Cog, LayoutDashboard, ListChecks, UserRound, LogOut, BriefcaseBusiness, PanelLeftClose, PanelLeftOpen, Video, CalendarDays } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { clearAuthSession } from '../../lib/authSession';
@@ -11,6 +11,8 @@ export function EmployeeSidebar({ isCollapsed, onToggle }: { isCollapsed: boolea
     { to: '/employee/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/employee/profile', label: 'Profile', icon: UserRound },
     { to: '/employee/tasks', label: 'Tasks', icon: ListChecks },
+    { to: '/employee/meetings', label: 'Meetings', icon: Video },
+    { to: '/employee/calendar', label: 'Calendar', icon: CalendarDays },
     { to: '/employee/leave', label: 'Leave', icon: CalendarCheck2 },
     { to: '/employee/attendance', label: 'Attendance', icon: BriefcaseBusiness },
     { to: '/employee/reports', label: 'Reports', icon: ChartSpline },
