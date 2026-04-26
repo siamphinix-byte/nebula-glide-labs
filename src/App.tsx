@@ -48,6 +48,10 @@ import { BudgetDashboard } from './pages/budget/BudgetDashboard';
 import { Budgets } from './pages/budget/Budgets';
 import { Expenses } from './pages/budget/Expenses';
 import { ExpenseApprovals } from './pages/budget/ExpenseApprovals';
+import { HRMEmployeesPage } from './pages/hrm/HRMEmployeesPage';
+import { HRMLeavePage } from './pages/hrm/HRMLeavePage';
+import { HRMAttendancePage } from './pages/hrm/HRMAttendancePage';
+import { HRMDepartmentsPage } from './pages/hrm/HRMDepartmentsPage';
 import { ToDos } from './pages/ToDos';
 import { ProjectReports } from './pages/ProjectReports';
 import { MediaLibrary } from './pages/MediaLibrary';
@@ -143,6 +147,10 @@ export default function App() {
         {/* DASHBOARD PORTAL PAGES */}
         <Route path="/app/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
         <Route path="/app/hrm/dashboard" element={<DashboardLayout><HRMDashboard /></DashboardLayout>} />
+        <Route path="/app/hrm/employees" element={<DashboardLayout><HRMEmployeesPage /></DashboardLayout>} />
+        <Route path="/app/hrm/leave" element={<DashboardLayout><HRMLeavePage /></DashboardLayout>} />
+        <Route path="/app/hrm/attendance" element={<DashboardLayout><HRMAttendancePage /></DashboardLayout>} />
+        <Route path="/app/hrm/departments" element={<DashboardLayout><HRMDepartmentsPage /></DashboardLayout>} />
         <Route path="/app/projects" element={<DashboardLayout><Projects /></DashboardLayout>} />
         <Route path="/app/tasks" element={<DashboardLayout><Tasks /></DashboardLayout>} />
         <Route path="/app/task-stages" element={<DashboardLayout><TaskStages /></DashboardLayout>} />
