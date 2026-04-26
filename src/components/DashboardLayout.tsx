@@ -1,6 +1,8 @@
 import { ReactNode, useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import { DashboardSidebar } from './DashboardSidebar';
 import { DashboardTopNav } from './DashboardTopNav';
+import { isAuthenticated, readRole } from '../lib/authSession';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -9,6 +11,16 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  const role = readRole();
+
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (role === 'employee') {
+    return <Navigate to="/employee/dashboard" replace />;
+  }
 
   useEffect(() => {
     const checkMobile = () => {
