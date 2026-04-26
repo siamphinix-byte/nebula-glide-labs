@@ -1,6 +1,7 @@
 import { Search, Bell, LogOut, User } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { clearAuthSession } from '../lib/authSession';
 
 export function DashboardTopNav() {
   const navigate = useNavigate();
@@ -54,9 +55,7 @@ export function DashboardTopNav() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    sessionStorage.clear();
+    clearAuthSession();
     setIsLogoutDialogOpen(false);
     navigate('/login');
   };

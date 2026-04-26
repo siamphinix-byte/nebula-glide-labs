@@ -1,6 +1,7 @@
 import { CalendarCheck2, ChartSpline, Cog, LayoutDashboard, ListChecks, UserRound, LogOut, BriefcaseBusiness } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { clearAuthSession } from '../../lib/authSession';
 
 export function EmployeeSidebar({ isCollapsed, onToggle }: { isCollapsed: boolean; onToggle: () => void }) {
   const location = useLocation();
@@ -17,8 +18,7 @@ export function EmployeeSidebar({ isCollapsed, onToggle }: { isCollapsed: boolea
   ];
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    clearAuthSession();
     navigate('/login');
   };
 
