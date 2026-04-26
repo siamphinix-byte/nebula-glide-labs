@@ -2,6 +2,7 @@ import { Search, SlidersHorizontal, UserRound } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { Reveal, StaggerReveal } from '../../components/GSAPWrapper';
 import { employees, type Employee, type EmployeeStatus } from './hrmData';
+import { HRMHorizontalScroll } from './HRMHorizontalScroll';
 import { sectionCardClassName, statusPillClassName } from './HRMShared';
 
 const departmentOptions = ['All', ...new Set(employees.map((employee) => employee.department))];
@@ -88,7 +89,7 @@ export function HRMEmployeesPage() {
 
       <StaggerReveal className="grid grid-cols-1 gap-6 xl:grid-cols-[1.5fr_1fr]">
         <section className={sectionCardClassName('overflow-hidden')}>
-          <div className="overflow-auto">
+          <HRMHorizontalScroll>
             <table className="w-full min-w-[760px] text-sm">
               <thead>
                 <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wide text-white/55">
@@ -122,7 +123,7 @@ export function HRMEmployeesPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </HRMHorizontalScroll>
         </section>
 
         <section className={sectionCardClassName()}>
