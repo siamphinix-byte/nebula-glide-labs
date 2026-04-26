@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FolderOpen, MessageSquare, Smartphone, CheckSquare, Bug, ChevronDown, PanelLeftClose, PanelLeftOpen, CalendarDays, Users, CalendarRange, BadgeDollarSign, ReceiptText, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, FolderOpen, MessageSquare, Smartphone, CheckSquare, Bug, ChevronDown, PanelLeftClose, PanelLeftOpen, CalendarDays, Users, CalendarRange, BadgeDollarSign, ReceiptText, ShieldCheck, Handshake } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: boolean; onToggle?: () => void }) {
@@ -11,6 +11,7 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
   const [timesheetsOpen, setTimesheetsOpen] = useState(location.pathname.includes('/app/timesheet'));
   const [budgetOpen, setBudgetOpen] = useState(location.pathname.includes('/app/budget'));
   const [hrmOpen, setHrmOpen] = useState(location.pathname.includes('/app/hrm'));
+  const [crmOpen, setCrmOpen] = useState(location.pathname.includes('/app/crm'));
 
   useEffect(() => {
     if (location.pathname.includes('/app/task')) setTasksOpen(true);
@@ -18,6 +19,7 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
     if (location.pathname.includes('/app/timesheet')) setTimesheetsOpen(true);
     if (location.pathname.includes('/app/budget')) setBudgetOpen(true);
     if (location.pathname.includes('/app/hrm')) setHrmOpen(true);
+    if (location.pathname.includes('/app/crm')) setCrmOpen(true);
   }, [location.pathname]);
 
   return (
@@ -73,6 +75,28 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
                     <NavLink to="/app/hrm/payroll" icon={BadgeDollarSign} label="Payroll" active={isActive('/app/hrm/payroll')} isSub isCollapsed={isCollapsed} />
                     <NavLink to="/app/hrm/payslips" icon={ReceiptText} label="Payslips" active={isActive('/app/hrm/payslips')} isSub isCollapsed={isCollapsed} />
                     <NavLink to="/app/hrm/roles" icon={ShieldCheck} label="Roles" active={isActive('/app/hrm/roles')} isSub isCollapsed={isCollapsed} />
+                  </div>
+                )}
+              </div>
+            )}
+            {isCollapsed ? (
+              <NavLink to="/app/crm/leads" icon={Handshake} label="CRM" active={location.pathname.includes('/app/crm')} isCollapsed={isCollapsed} />
+            ) : (
+              <div>
+                <button
+                  onClick={() => setCrmOpen(!crmOpen)}
+                  className={`flex items-center w-full justify-between px-4 mx-4 pr-8 h-10 rounded-xl transition-all duration-300 font-medium group ${location.pathname.includes('/app/crm') ? 'text-white' : 'text-white/40 hover:bg-white/5 hover:text-white'}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Handshake className={`w-4 h-4 flex-shrink-0 transition-colors ${location.pathname.includes('/app/crm') ? 'text-[#bbf600]' : 'text-white/30 group-hover:text-white/70'}`} />
+                    <span className="text-[13px]">CRM</span>
+                  </div>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${crmOpen ? '' : '-rotate-90'}`} />
+                </button>
+                {crmOpen && (
+                  <div className="ml-8 mt-1 space-y-1 border-l border-white/5 pl-2">
+                    <NavLink to="/app/crm/leads" label="Manage Leads" active={isActive('/app/crm/leads')} isSub isCollapsed={isCollapsed} />
+                    <NavLink to="/app/crm/deals" label="Manage Deals" active={isActive('/app/crm/deals')} isSub isCollapsed={isCollapsed} />
                   </div>
                 )}
               </div>
