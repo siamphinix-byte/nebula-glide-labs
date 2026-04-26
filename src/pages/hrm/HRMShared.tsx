@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 import type { AttendanceStatus, EmployeeStatus, LeaveStatus } from './hrmData';
 
 export function sectionCardClassName(extra?: string) {
