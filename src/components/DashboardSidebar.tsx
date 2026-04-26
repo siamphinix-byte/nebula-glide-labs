@@ -50,7 +50,6 @@ export function DashboardSidebar({ isCollapsed, onToggle }: { isCollapsed?: bool
           {isCollapsed && <div className="h-4" />}
           <nav className="space-y-1 relative">
             <NavLink to="/executive/dashboard" icon={LayoutDashboard} label="Executive Console" active={isActive('/executive/dashboard')} isCollapsed={isCollapsed} />
-            <NavLink to="/employee/dashboard" icon={Users} label="Employee Panel" active={location.pathname.includes('/employee/')} isCollapsed={isCollapsed} />
             {isCollapsed ? (
               <NavLink to="/executive/hrm/dashboard" icon={Users} label="HRM" active={location.pathname.includes('/executive/hrm')} isCollapsed={isCollapsed} />
             ) : (
