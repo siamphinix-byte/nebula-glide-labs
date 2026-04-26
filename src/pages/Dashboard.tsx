@@ -160,13 +160,13 @@ export function Dashboard() {
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <button
-                onClick={() => navigate('/app/projects')}
+                onClick={() => navigate('/executive/projects')}
                 className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-[13px] font-semibold text-white transition-all hover:bg-white/10"
               >
                 Open Projects
               </button>
               <button
-                onClick={() => navigate('/app/projects')}
+                onClick={() => navigate('/executive/projects')}
                 className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-brand-primary)]/45 bg-[var(--color-brand-primary)]/20 px-4 py-2 text-[13px] font-semibold text-white transition-all hover:bg-[var(--color-brand-primary)]/30"
               >
                 <Plus className="h-4 w-4 text-[var(--color-brand-secondary)]" /> Add Task

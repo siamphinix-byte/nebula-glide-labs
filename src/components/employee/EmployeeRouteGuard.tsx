@@ -6,7 +6,7 @@ export function EmployeeRouteGuard({ children }: { children: React.ReactNode }) 
   const role = readRole();
 
   if (role && role !== 'employee') {
-    return <Navigate to="/app/dashboard" replace />;
+    return <Navigate to="/executive/dashboard" replace />;
   }
 
   return <>{children}</>;
