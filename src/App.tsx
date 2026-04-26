@@ -90,6 +90,8 @@ import { EmployeeLeavePage } from './pages/employee/EmployeeLeavePage';
 import { EmployeeAttendancePage } from './pages/employee/EmployeeAttendancePage';
 import { EmployeeReportsPage } from './pages/employee/EmployeeReportsPage';
 import { EmployeeSettingsPage } from './pages/employee/EmployeeSettingsPage';
+import { EmployeeMeetingsPage } from './pages/employee/EmployeeMeetingsPage';
+import { EmployeeCalendarPage } from './pages/employee/EmployeeCalendarPage';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -226,6 +228,8 @@ export default function App() {
         <Route path="/employee/tasks" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeTasksPage /></EmployeeLayout></EmployeeRouteGuard>} />
         <Route path="/employee/leave" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeLeavePage /></EmployeeLayout></EmployeeRouteGuard>} />
         <Route path="/employee/attendance" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeAttendancePage /></EmployeeLayout></EmployeeRouteGuard>} />
+        <Route path="/employee/meetings" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeMeetingsPage /></EmployeeLayout></EmployeeRouteGuard>} />
+        <Route path="/employee/calendar" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeCalendarPage /></EmployeeLayout></EmployeeRouteGuard>} />
         <Route path="/employee/reports" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeReportsPage /></EmployeeLayout></EmployeeRouteGuard>} />
         <Route path="/employee/settings" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeSettingsPage /></EmployeeLayout></EmployeeRouteGuard>} />
 
