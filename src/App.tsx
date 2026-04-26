@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import React, { useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -166,6 +166,7 @@ export default function App() {
         <Route path="/quote" element={<TransactionalLayout><Quote /></TransactionalLayout>} />
 
         {/* DASHBOARD PORTAL PAGES */}
+        <Route path="/executive" element={<Navigate to="/executive/dashboard" replace />} />
         <Route path="/executive/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
         <Route path="/executive/hrm/dashboard" element={<DashboardLayout><HRMDashboard /></DashboardLayout>} />
         <Route path="/executive/hrm/employees" element={<DashboardLayout><HRMEmployeesPage /></DashboardLayout>} />
@@ -219,6 +220,7 @@ export default function App() {
         <Route path="/executive/project-board" element={<DashboardLayout><ProjectBoard /></DashboardLayout>} />
 
         {/* EMPLOYEE PANEL (ISOLATED FROM EXECUTIVE /executive/*) */}
+        <Route path="/employee" element={<Navigate to="/employee/dashboard" replace />} />
         <Route path="/employee/dashboard" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeDashboardPage /></EmployeeLayout></EmployeeRouteGuard>} />
         <Route path="/employee/profile" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeProfilePage /></EmployeeLayout></EmployeeRouteGuard>} />
         <Route path="/employee/tasks" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeTasksPage /></EmployeeLayout></EmployeeRouteGuard>} />
