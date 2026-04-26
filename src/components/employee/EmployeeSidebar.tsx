@@ -60,13 +60,6 @@ export function EmployeeSidebar({ isCollapsed, onToggle }: { isCollapsed: boolea
 
       <div className="mx-4 mt-4 rounded-xl border border-border bg-brand-surface p-2">
         <button
-          onClick={() => navigate('/app/dashboard')}
-          className="mb-2 flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-border bg-brand-muted text-xs font-semibold text-foreground/85 transition-colors hover:bg-brand-muted/80"
-        >
-          <LayoutDashboard className="h-4 w-4" />
-          {!isCollapsed && 'Executive Panel'}
-        </button>
-        <button
           onClick={logout}
           className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-border bg-transparent text-xs font-semibold text-foreground/70 transition-colors hover:bg-brand-muted"
         >

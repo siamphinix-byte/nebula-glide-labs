@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import React, { useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -166,59 +166,61 @@ export default function App() {
         <Route path="/quote" element={<TransactionalLayout><Quote /></TransactionalLayout>} />
 
         {/* DASHBOARD PORTAL PAGES */}
-        <Route path="/app/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
-        <Route path="/app/hrm/dashboard" element={<DashboardLayout><HRMDashboard /></DashboardLayout>} />
-        <Route path="/app/hrm/employees" element={<DashboardLayout><HRMEmployeesPage /></DashboardLayout>} />
-        <Route path="/app/hrm/leave" element={<DashboardLayout><HRMLeavePage /></DashboardLayout>} />
-        <Route path="/app/hrm/attendance" element={<DashboardLayout><HRMAttendancePage /></DashboardLayout>} />
-        <Route path="/app/hrm/departments" element={<DashboardLayout><HRMDepartmentsPage /></DashboardLayout>} />
-        <Route path="/app/hrm/shifts" element={<DashboardLayout><HRMShiftsPage /></DashboardLayout>} />
-        <Route path="/app/hrm/payroll" element={<DashboardLayout><HRMPayrollPage /></DashboardLayout>} />
-        <Route path="/app/hrm/payslips" element={<DashboardLayout><HRMPayslipsPage /></DashboardLayout>} />
-        <Route path="/app/hrm/roles" element={<DashboardLayout><HRMRolesPage /></DashboardLayout>} />
-        <Route path="/app/hrm/complaints" element={<DashboardLayout><HRMComplaintsPage /></DashboardLayout>} />
-        <Route path="/app/hrm/warnings" element={<DashboardLayout><HRMWarningsPage /></DashboardLayout>} />
-        <Route path="/app/hrm/terminations" element={<DashboardLayout><HRMTerminationsPage /></DashboardLayout>} />
-        <Route path="/app/hrm/announcements" element={<DashboardLayout><HRMAnnouncementsPage /></DashboardLayout>} />
-        <Route path="/app/hrm/events" element={<DashboardLayout><HRMEventsPage /></DashboardLayout>} />
-        <Route path="/app/hrm/documents" element={<DashboardLayout><HRMDocumentsPage /></DashboardLayout>} />
-        <Route path="/app/crm/leads" element={<DashboardLayout><CRMLeadsPage /></DashboardLayout>} />
-        <Route path="/app/crm/deals" element={<DashboardLayout><CRMDealsPage /></DashboardLayout>} />
-        <Route path="/app/projects" element={<DashboardLayout><Projects /></DashboardLayout>} />
-        <Route path="/app/tasks" element={<DashboardLayout><Tasks /></DashboardLayout>} />
-        <Route path="/app/task-stages" element={<DashboardLayout><TaskStages /></DashboardLayout>} />
-        <Route path="/app/bugs" element={<DashboardLayout><Bugs /></DashboardLayout>} />
-        <Route path="/app/bug-statuses" element={<DashboardLayout><BugStatuses /></DashboardLayout>} />
+        <Route path="/executive" element={<Navigate to="/executive/dashboard" replace />} />
+        <Route path="/executive/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
+        <Route path="/executive/hrm/dashboard" element={<DashboardLayout><HRMDashboard /></DashboardLayout>} />
+        <Route path="/executive/hrm/employees" element={<DashboardLayout><HRMEmployeesPage /></DashboardLayout>} />
+        <Route path="/executive/hrm/leave" element={<DashboardLayout><HRMLeavePage /></DashboardLayout>} />
+        <Route path="/executive/hrm/attendance" element={<DashboardLayout><HRMAttendancePage /></DashboardLayout>} />
+        <Route path="/executive/hrm/departments" element={<DashboardLayout><HRMDepartmentsPage /></DashboardLayout>} />
+        <Route path="/executive/hrm/shifts" element={<DashboardLayout><HRMShiftsPage /></DashboardLayout>} />
+        <Route path="/executive/hrm/payroll" element={<DashboardLayout><HRMPayrollPage /></DashboardLayout>} />
+        <Route path="/executive/hrm/payslips" element={<DashboardLayout><HRMPayslipsPage /></DashboardLayout>} />
+        <Route path="/executive/hrm/roles" element={<DashboardLayout><HRMRolesPage /></DashboardLayout>} />
+        <Route path="/executive/hrm/complaints" element={<DashboardLayout><HRMComplaintsPage /></DashboardLayout>} />
+        <Route path="/executive/hrm/warnings" element={<DashboardLayout><HRMWarningsPage /></DashboardLayout>} />
+        <Route path="/executive/hrm/terminations" element={<DashboardLayout><HRMTerminationsPage /></DashboardLayout>} />
+        <Route path="/executive/hrm/announcements" element={<DashboardLayout><HRMAnnouncementsPage /></DashboardLayout>} />
+        <Route path="/executive/hrm/events" element={<DashboardLayout><HRMEventsPage /></DashboardLayout>} />
+        <Route path="/executive/hrm/documents" element={<DashboardLayout><HRMDocumentsPage /></DashboardLayout>} />
+        <Route path="/executive/crm/leads" element={<DashboardLayout><CRMLeadsPage /></DashboardLayout>} />
+        <Route path="/executive/crm/deals" element={<DashboardLayout><CRMDealsPage /></DashboardLayout>} />
+        <Route path="/executive/projects" element={<DashboardLayout><Projects /></DashboardLayout>} />
+        <Route path="/executive/tasks" element={<DashboardLayout><Tasks /></DashboardLayout>} />
+        <Route path="/executive/task-stages" element={<DashboardLayout><TaskStages /></DashboardLayout>} />
+        <Route path="/executive/bugs" element={<DashboardLayout><Bugs /></DashboardLayout>} />
+        <Route path="/executive/bug-statuses" element={<DashboardLayout><BugStatuses /></DashboardLayout>} />
         
         {/* TIMESHEETS */}
-        <Route path="/app/timesheets" element={<DashboardLayout><Timesheets /></DashboardLayout>} />
-        <Route path="/app/timesheets/daily" element={<DashboardLayout><DailyView /></DashboardLayout>} />
-        <Route path="/app/timesheets/weekly" element={<DashboardLayout><WeeklyView /></DashboardLayout>} />
-        <Route path="/app/timesheets/monthly" element={<DashboardLayout><MonthlyView /></DashboardLayout>} />
-        <Route path="/app/timesheets/approvals" element={<DashboardLayout><Approvals /></DashboardLayout>} />
-        <Route path="/app/timesheets/reports" element={<DashboardLayout><Reports /></DashboardLayout>} />
+        <Route path="/executive/timesheets" element={<DashboardLayout><Timesheets /></DashboardLayout>} />
+        <Route path="/executive/timesheets/daily" element={<DashboardLayout><DailyView /></DashboardLayout>} />
+        <Route path="/executive/timesheets/weekly" element={<DashboardLayout><WeeklyView /></DashboardLayout>} />
+        <Route path="/executive/timesheets/monthly" element={<DashboardLayout><MonthlyView /></DashboardLayout>} />
+        <Route path="/executive/timesheets/approvals" element={<DashboardLayout><Approvals /></DashboardLayout>} />
+        <Route path="/executive/timesheets/reports" element={<DashboardLayout><Reports /></DashboardLayout>} />
         
-        <Route path="/app/meetings" element={<DashboardLayout><Meetings /></DashboardLayout>} />
-        <Route path="/app/zoom-meetings" element={<DashboardLayout><Meetings /></DashboardLayout>} />
-        <Route path="/app/google-meetings" element={<DashboardLayout><Meetings /></DashboardLayout>} />
-        <Route path="/app/messenger" element={<DashboardLayout><Messenger /></DashboardLayout>} />
+        <Route path="/executive/meetings" element={<DashboardLayout><Meetings /></DashboardLayout>} />
+        <Route path="/executive/zoom-meetings" element={<DashboardLayout><Meetings /></DashboardLayout>} />
+        <Route path="/executive/google-meetings" element={<DashboardLayout><Meetings /></DashboardLayout>} />
+        <Route path="/executive/messenger" element={<DashboardLayout><Messenger /></DashboardLayout>} />
         
-        <Route path="/app/budget/dashboard" element={<DashboardLayout><BudgetDashboard /></DashboardLayout>} />
-        <Route path="/app/budget/budgets" element={<DashboardLayout><Budgets /></DashboardLayout>} />
-        <Route path="/app/budget/expenses" element={<DashboardLayout><Expenses /></DashboardLayout>} />
-        <Route path="/app/budget/approvals" element={<DashboardLayout><ExpenseApprovals /></DashboardLayout>} />
+        <Route path="/executive/budget/dashboard" element={<DashboardLayout><BudgetDashboard /></DashboardLayout>} />
+        <Route path="/executive/budget/budgets" element={<DashboardLayout><Budgets /></DashboardLayout>} />
+        <Route path="/executive/budget/expenses" element={<DashboardLayout><Expenses /></DashboardLayout>} />
+        <Route path="/executive/budget/approvals" element={<DashboardLayout><ExpenseApprovals /></DashboardLayout>} />
 
-        <Route path="/app/todos" element={<DashboardLayout><ToDos /></DashboardLayout>} />
-        <Route path="/app/project-reports" element={<DashboardLayout><ProjectReports /></DashboardLayout>} />
-        <Route path="/app/media" element={<DashboardLayout><MediaLibrary /></DashboardLayout>} />
-        <Route path="/app/notes" element={<DashboardLayout><Notes /></DashboardLayout>} />
-        <Route path="/app/invoice" element={<DashboardLayout><Invoices /></DashboardLayout>} />
-        <Route path="/app/calendar" element={<DashboardLayout><CalendarView /></DashboardLayout>} />
+        <Route path="/executive/todos" element={<DashboardLayout><ToDos /></DashboardLayout>} />
+        <Route path="/executive/project-reports" element={<DashboardLayout><ProjectReports /></DashboardLayout>} />
+        <Route path="/executive/media" element={<DashboardLayout><MediaLibrary /></DashboardLayout>} />
+        <Route path="/executive/notes" element={<DashboardLayout><Notes /></DashboardLayout>} />
+        <Route path="/executive/invoice" element={<DashboardLayout><Invoices /></DashboardLayout>} />
+        <Route path="/executive/calendar" element={<DashboardLayout><CalendarView /></DashboardLayout>} />
 
-        <Route path="/app/clients" element={<DashboardLayout><Clients /></DashboardLayout>} />
-        <Route path="/app/project-board" element={<DashboardLayout><ProjectBoard /></DashboardLayout>} />
+        <Route path="/executive/clients" element={<DashboardLayout><Clients /></DashboardLayout>} />
+        <Route path="/executive/project-board" element={<DashboardLayout><ProjectBoard /></DashboardLayout>} />
 
-        {/* EMPLOYEE PANEL (ISOLATED FROM EXECUTIVE /app/*) */}
+        {/* EMPLOYEE PANEL (ISOLATED FROM EXECUTIVE /executive/*) */}
+        <Route path="/employee" element={<Navigate to="/employee/dashboard" replace />} />
         <Route path="/employee/dashboard" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeDashboardPage /></EmployeeLayout></EmployeeRouteGuard>} />
         <Route path="/employee/profile" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeProfilePage /></EmployeeLayout></EmployeeRouteGuard>} />
         <Route path="/employee/tasks" element={<EmployeeRouteGuard><EmployeeLayout><EmployeeTasksPage /></EmployeeLayout></EmployeeRouteGuard>} />
